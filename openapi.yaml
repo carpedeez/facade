@@ -1,0 +1,500 @@
+openapi: 3.0.1
+info:
+  title: Parkdeez
+  description: >-
+    This is the public API for Parkdeez. Use `special-key` to test the
+    authorization filters.
+  version: 0.0.1
+servers:
+  - url: https://parkdeez.monoceratus.io/v0
+  - url: http://parkdeez.monoceratus.io/v0
+tags:
+  - name: spot
+    description: Operations about spots
+  - name: user
+    description: Operations about user
+paths:
+  /spot:
+    post:
+      tags:
+        - spot
+      summary: Add a new spot
+      operationId: addSpot
+      requestBody:
+        description: Spot object that needs to be added
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Spot'
+        required: true
+      responses:
+        '200':
+          description: spot response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Spot'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - spot_auth:
+            - write:spots
+            - read:spots
+  /spot/findByStatus:
+    get:
+      tags:
+        - spot
+      summary: Finds Spots by status
+      description: Multiple status values can be provided with comma separated strings
+      operationId: findSpotsByStatus
+      parameters:
+        - name: status
+          in: query
+          description: Status values that need to be considered for filter
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+              default: available
+              enum:
+                - available
+                - pending
+                - sold
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Spot'
+        '400':
+          description: Invalid status value
+          content: {}
+      security:
+        - spot_auth:
+            - write:spots
+            - read:spots
+  /spot/{spotId}:
+    get:
+      tags:
+        - spot
+      summary: Find spot by ID
+      description: Returns a single spot
+      operationId: getSpotById
+      parameters:
+        - name: spotId
+          in: path
+          description: ID of spot to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Spot'
+        '400':
+          description: Invalid ID supplied
+          content: {}
+        '404':
+          description: Spot not found
+          content: {}
+      security:
+        - api_key: []
+    put:
+      tags:
+        - spot
+      summary: Updates a spot in the store with form data
+      operationId: updateSpotWithForm
+      parameters:
+        - name: spotId
+          in: path
+          description: ID of spot that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                name:
+                  type: string
+                  description: Updated name of the spot
+                status:
+                  type: string
+                  description: Updated status of the spot
+      responses:
+        '405':
+          description: Invalid input
+          content: {}
+      security:
+        - spot_auth:
+            - write:spots
+            - read:spots
+    delete:
+      tags:
+        - spot
+      summary: Deletes a spot
+      operationId: deleteSpot
+      parameters:
+        - name: api_key
+          in: header
+          schema:
+            type: string
+        - name: spotId
+          in: path
+          description: Spot id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '400':
+          description: Invalid ID supplied
+          content: {}
+        '404':
+          description: Spot not found
+          content: {}
+      security:
+        - spot_auth:
+            - write:spots
+            - read:spots
+  /spot/{spotId}/uploadImage:
+    post:
+      tags:
+        - spot
+      summary: uploads an image
+      operationId: uploadFile
+      parameters:
+        - name: spotId
+          in: path
+          description: ID of spot to update
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                additionalMetadata:
+                  type: string
+                  description: Additional data to pass to server
+                file:
+                  type: string
+                  description: file to upload
+                  format: binary
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+      security:
+        - spot_auth:
+            - write:spots
+            - read:spots
+  /user:
+    post:
+      tags:
+        - user
+      summary: Create user
+      operationId: createUser
+      requestBody:
+        description: Created user object
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        default:
+          description: successful operation
+          content: {}
+  /user/createWithArray:
+    post:
+      tags:
+        - user
+      summary: Creates list of users with given input array
+      operationId: createUsersWithArrayInput
+      requestBody:
+        description: List of user object
+        content:
+          '*/*':
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        default:
+          description: successful operation
+          content: {}
+  /user/createWithList:
+    post:
+      tags:
+        - user
+      summary: Creates list of users with given input array
+      operationId: createUsersWithListInput
+      requestBody:
+        description: List of user object
+        content:
+          '*/*':
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        default:
+          description: successful operation
+          content: {}
+  /user/login:
+    get:
+      tags:
+        - user
+      summary: Logs user into the system
+      operationId: loginUser
+      parameters:
+        - name: username
+          in: query
+          description: The user name for login
+          required: true
+          schema:
+            type: string
+        - name: password
+          in: query
+          description: The password for login in clear text
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          headers:
+            X-Rate-Limit:
+              description: calls per hour allowed by the user
+              schema:
+                type: integer
+                format: int32
+            X-Expires-After:
+              description: date in UTC when token expires
+              schema:
+                type: string
+                format: date-time
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Invalid username/password supplied
+          content: {}
+  /user/logout:
+    get:
+      tags:
+        - user
+      summary: Logs out current logged in user session
+      operationId: logoutUser
+      responses:
+        default:
+          description: successful operation
+          content: {}
+  /user/{username}:
+    get:
+      tags:
+        - user
+      summary: Get user by user name
+      operationId: getUserByName
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid username supplied
+          content: {}
+        '404':
+          description: User not found
+          content: {}
+    put:
+      tags:
+        - user
+      summary: Updated user
+      description: This can only be done by the logged in user.
+      operationId: updateUser
+      parameters:
+        - name: username
+          in: path
+          description: name that need to be updated
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Updated user object
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        '400':
+          description: Invalid user supplied
+          content: {}
+        '404':
+          description: User not found
+          content: {}
+    delete:
+      tags:
+        - user
+      summary: Delete user
+      description: This can only be done by the logged in user.
+      operationId: deleteUser
+      parameters:
+        - name: username
+          in: path
+          description: The name that needs to be deleted
+          required: true
+          schema:
+            type: string
+      responses:
+        '400':
+          description: Invalid username supplied
+          content: {}
+        '404':
+          description: User not found
+          content: {}
+components:
+  schemas:
+    User:
+      required:
+        - id
+        - username
+        - fname
+        - status
+      type: object
+      properties:
+        id:
+          type: integer
+          format: uint64
+        username:
+          type: string
+        fname:
+          type: string
+        lname:
+          type: string
+        status:
+          type: string
+          enum:
+            - online
+            - offline
+            - unavailable
+    Tag:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+    Spot:
+      required:
+        - id
+        - address
+        - photoUrls
+      type: object
+      properties:
+        id:
+          type: integer
+          format: uint64
+        userID:
+          type: integer
+          format: uint64
+        info:
+          type: string
+        address:
+          type: string
+        photoUrls:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          description: spot status
+          enum:
+            - available
+            - occupied
+            - unavailable
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        reviews:
+          type: array
+          items:
+            $ref: '#/components/schemas/Review'
+    Review:
+      type: object
+      required:
+        - userID
+        - rating
+      properties:
+        id:
+          type: integer
+          format: uint64
+        userID:
+          type: integer
+          format: uint64
+        rating:
+          type: integer
+          format: int32
+        content:
+          type: string
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+  securitySchemes:
+    spot_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: http://spot.swagger.io/oauth/dialog
+          scopes:
+            write:spots: modify spots in your account
+            read:spots: read your spots
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header

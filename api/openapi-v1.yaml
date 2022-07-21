@@ -1,0 +1,500 @@
+openapi: 3.0.2
+info:
+  title: Facade
+  description: >-
+    This is the public API for Facade.
+  version: 0.0.1
+servers:
+  - url: https://facade.carpedeez.io/v0
+paths:
+  /assets:
+    post:
+      summary: Upload file
+      operationId: uploadFile
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Upload'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+                description: URL for image
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /{username}:
+    get:
+      summary: Get user
+      operationId: getUser
+      parameters:
+        - name: username
+          required: true
+          in: path
+          schema:
+            type: string
+            minLength: 3
+            maxLength: 20
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create user
+      operationId: createUser
+      parameters:
+        - name: username
+          required: true
+          in: path
+          schema:
+            type: string
+            minLength: 3
+            maxLength: 20
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Update user
+      operationId: updateUser
+      parameters:
+        - name: username
+          required: true
+          in: path
+          schema:
+            type: string
+            minLength: 3
+            maxLength: 20
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /{username}/{displayID}:
+    get:
+      summary: Get display
+      operationId: getDisplays
+      parameters:
+        - name: username
+          required: true
+          in: path
+          schema:
+            type: string
+            minLength: 3
+            maxLength: 20
+        - name: displayID
+          required: true
+          in: path
+          schema:
+            type: integer
+            format: uint64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Display'
+                maxItems: 100
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create display
+      operationId: createDisplay
+      parameters:
+        - name: username
+          required: true
+          in: path
+          schema:
+            type: string
+            minLength: 3
+            maxLength: 20
+        - name: displayID
+          required: true
+          in: path
+          schema:
+            type: integer
+            format: uint64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Display'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Display'
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Update display
+      operationId: updateDisplay
+      parameters:
+        - name: username
+          required: true
+          in: path
+          schema:
+            type: string
+            minLength: 3
+            maxLength: 20
+        - name: displayID
+          required: true
+          in: path
+          schema:
+            type: integer
+            format: uint64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Display'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Display'
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete display
+      operationId: deleteDisplay
+      parameters:
+        - name: username
+          required: true
+          in: path
+          schema:
+            type: string
+            minLength: 3
+            maxLength: 20
+        - name: displayID
+          required: true
+          in: path
+          schema:
+            type: integer
+            format: uint64
+      responses:
+        '200':
+          description: OK
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /{username}/{displayID}/{itemID}:
+    get:
+      summary: Get item
+      operationId: getItem
+      parameters:
+        - name: username
+          required: true
+          in: path
+          schema:
+            type: string
+            minLength: 3
+            maxLength: 20
+        - name: displayID
+          required: true
+          in: path
+          schema:
+            type: integer
+            format: uint64
+        - name: itemID
+          required: true
+          in: path
+          schema: 
+            type: integer
+            format: uint64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
+                maxItems: 100
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create item
+      operationId: createItem
+      parameters:
+        - name: username
+          required: true
+          in: path
+          schema:
+            type: string
+            minLength: 3
+            maxLength: 20
+        - name: displayID
+          required: true
+          in: path
+          schema:
+            type: integer
+            format: uint64
+        - name: itemID
+          required: true
+          in: path
+          schema: 
+            type: integer
+            format: uint64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Item'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Update item
+      operationId: updateItem
+      parameters:
+        - name: username
+          required: true
+          in: path
+          schema:
+            type: string
+            minLength: 3
+            maxLength: 20
+        - name: displayID
+          required: true
+          in: path
+          schema:
+            type: integer
+            format: uint64
+        - name: itemID
+          required: true
+          in: path
+          schema: 
+            type: integer
+            format: uint64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Item'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete item
+      operationId: deleteItem
+      parameters:
+        - name: username
+          required: true
+          in: path
+          schema:
+            type: string
+            minLength: 3
+            maxLength: 20
+        - name: displayID
+          required: true
+          in: path
+          schema:
+            type: integer
+            format: uint64
+        - name: itemID
+          required: true
+          in: path
+          schema: 
+            type: integer
+            format: uint64
+      responses:
+        '200':
+          description: OK
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Upload:
+      required: 
+        - component
+        - file
+      type: object
+      additionalProperties: false
+      properties:
+        component:
+          type: string
+        file:
+          type: string
+          format: binary
+    User:
+      required:
+        - username
+      type: object
+      additionalProperties: false
+      properties:
+        username:
+          type: string
+        fname:
+          type: string
+        lname:
+          type: string
+        displayIDs:
+          type: array
+          items: 
+            type: integer
+            format: uint64
+        photoURL:
+          type: string
+        socialLinks:
+          type: array
+          items: 
+            type: string
+    Display:
+      required:
+        - id
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: integer
+          format: uint64
+        username:
+          type: string
+        description:
+          type: string
+        photoURL:
+          type: string
+        itemIDs:
+          type: array
+          items: 
+            type: integer
+            format: uint64
+    Item:
+      required:
+        - id
+      type: object
+      additionalProperties: false
+      properties:
+        id: 
+          type: integer
+          format: uint64
+        externalLink:
+          type: string
+        socialPostLink:
+          type: string
+        photoURL:
+          type: string
+        username:
+          type: string
+        displayID:
+          type: integer
+          format: uint64
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      additionalProperties: false
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header
