@@ -23,3 +23,5 @@ go.work.sum
 
 # Actual config
 config.yaml
+
+/scripts/values.sh

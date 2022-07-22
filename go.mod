@@ -8,6 +8,7 @@ require (
 )
 
 require (
+	github.com/doug-martin/goqu/v9 v9.18.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/ory/client-go v0.1.0-alpha.9 // indirect
