@@ -37,12 +37,7 @@ func main() {
 	r.Use(middleware.Logger)
 
 	f := facade.Facade{Querier: &database.Querier{DB: db}}
-	handler := facade.HandlerWithOptions(f, facade.ChiServerOptions{
-		BaseURL:    "",
-		BaseRouter: r,
-		ErrorHandlerFunc: func(w http.ResponseWriter, r *http.Request, err error) {
-		},
-	})
+	handler := facade.Handler(f, facade.WithRouter(r))
 
 	go func() {
 		err = http.ListenAndServe(fmt.Sprintf(":%s", config.FacadeConfig.Port), handler)

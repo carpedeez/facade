@@ -1,0 +1,5 @@
+package: facade
+generate:
+  - spec
+  - types
+  - server

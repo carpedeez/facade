@@ -287,40 +287,24 @@ This operation does not require authentication
 > 200 Response
 
 ```json
-[
-  {
-    "id": 0,
-    "username": "string",
-    "title": "string",
-    "description": "string",
-    "photoURL": "string",
-    "itemIDs": [
-      0
-    ]
-  }
-]
+{
+  "id": 0,
+  "username": "string",
+  "title": "string",
+  "description": "string",
+  "photoURL": "string",
+  "itemIDs": [
+    0
+  ]
+}
 ```
 
 <h3 id="getdisplay-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|Inline|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[Display](#schemadisplay)|
 |default|Default|Unexpected Error|[Error](#schemaerror)|
-
-<h3 id="getdisplay-responseschema">Response Schema</h3>
-
-Status Code **200**
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|*anonymous*|[[Display](#schemadisplay)]|false|none|none|
-|» id|integer(uint64)|false|none|none|
-|» username|string|false|none|none|
-|» title|string|false|none|none|
-|» description|string|false|none|none|
-|» photoURL|string|false|none|none|
-|» itemIDs|[integer]|false|none|none|
 
 <aside class="success">
 This operation does not require authentication
@@ -413,7 +397,7 @@ This operation does not require authentication
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|None|
+|204|[No Content](https://tools.ietf.org/html/rfc7231#section-6.3.5)|No Content|None|
 |default|Default|Unexpected Error|[Error](#schemaerror)|
 
 <aside class="success">
@@ -479,38 +463,22 @@ This operation does not require authentication
 > 200 Response
 
 ```json
-[
-  {
-    "id": 0,
-    "externalLink": "string",
-    "socialPostLink": "string",
-    "photoURL": "string",
-    "username": "string",
-    "displayID": 0
-  }
-]
+{
+  "id": 0,
+  "externalLink": "string",
+  "socialPostLink": "string",
+  "photoURL": "string",
+  "username": "string",
+  "displayID": 0
+}
 ```
 
 <h3 id="getitem-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|Inline|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[Item](#schemaitem)|
 |default|Default|Unexpected Error|[Error](#schemaerror)|
-
-<h3 id="getitem-responseschema">Response Schema</h3>
-
-Status Code **200**
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|*anonymous*|[[Item](#schemaitem)]|false|none|none|
-|» id|integer(uint64)|false|none|none|
-|» externalLink|string|false|none|none|
-|» socialPostLink|string|false|none|none|
-|» photoURL|string|false|none|none|
-|» username|string|false|none|none|
-|» displayID|integer(uint64)|false|none|none|
 
 <aside class="success">
 This operation does not require authentication

@@ -7,7 +7,6 @@ info:
 servers:
   - url: https://facade.carpedeez.io/v0
 paths:
-
   /assets:
     post:
       summary: Upload file
@@ -158,10 +157,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Display'
-                maxItems: 100
+                $ref: '#/components/schemas/Display'
         default:
           description: Unexpected Error
           content:
@@ -209,8 +205,8 @@ paths:
             type: integer
             format: uint64
       responses:
-        '200':
-          description: OK
+        '204':
+          description: No Content
         default:
           description: Unexpected Error
           content:
@@ -258,10 +254,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Item'
-                maxItems: 100
+                $ref: '#/components/schemas/Item'
         default:
           description: Unexpected Error
           content:
