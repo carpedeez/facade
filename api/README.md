@@ -262,6 +262,7 @@ This operation does not require authentication
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[Display](#schemadisplay)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request|None|
 |default|Default|Unexpected Error|[Error](#schemaerror)|
 
 <aside class="success">
@@ -280,7 +281,7 @@ This operation does not require authentication
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|displayID|path|integer(uint64)|true|none|
+|displayID|path|integer(int64)|true|none|
 
 > Example responses
 
@@ -337,7 +338,7 @@ This operation does not require authentication
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|displayID|path|integer(uint64)|true|none|
+|displayID|path|integer(int64)|true|none|
 |body|body|[Display](#schemadisplay)|true|none|
 
 > Example responses
@@ -380,7 +381,7 @@ This operation does not require authentication
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|displayID|path|integer(uint64)|true|none|
+|displayID|path|integer(int64)|true|none|
 
 > Example responses
 
@@ -456,7 +457,7 @@ This operation does not require authentication
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|itemID|path|integer(uint64)|true|none|
+|itemID|path|integer(int64)|true|none|
 
 > Example responses
 
@@ -509,7 +510,7 @@ This operation does not require authentication
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|itemID|path|integer(uint64)|true|none|
+|itemID|path|integer(int64)|true|none|
 |body|body|[Item](#schemaitem)|true|none|
 
 > Example responses
@@ -550,7 +551,7 @@ This operation does not require authentication
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|itemID|path|integer(uint64)|true|none|
+|itemID|path|integer(int64)|true|none|
 
 > Example responses
 
@@ -657,7 +658,7 @@ This operation does not require authentication
 
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
-|id|integer(uint64)|false|none|none|
+|id|integer(int64)|false|none|none|
 |username|string|false|none|none|
 |title|string|false|none|none|
 |description|string|false|none|none|
@@ -687,12 +688,12 @@ This operation does not require authentication
 
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
-|id|integer(uint64)|false|none|none|
+|id|integer(int64)|false|none|none|
 |externalLink|string|false|none|none|
 |socialPostLink|string|false|none|none|
 |photoURL|string|false|none|none|
 |username|string|false|none|none|
-|displayID|integer(uint64)|false|none|none|
+|displayID|integer(int64)|false|none|none|
 
 <h2 id="tocS_Error">Error</h2>
 <!-- backwards compatibility -->

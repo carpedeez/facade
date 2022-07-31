@@ -9,7 +9,7 @@ CREATE TABLE users
 
 CREATE TABLE displays
 (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     username VARCHAR REFERENCES users(username),
     title VARCHAR NOT NULL,
     descr VARCHAR NOT NULL, --description
@@ -18,7 +18,7 @@ CREATE TABLE displays
 
 CREATE TABLE items
 (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     externalLink VARCHAR NOT NULL,
     socialPostLink VARCHAR NOT NULL,
     photoURL VARCHAR NOT NULL,

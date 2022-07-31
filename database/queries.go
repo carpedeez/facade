@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/doug-martin/goqu/v9"
 )
@@ -24,20 +25,17 @@ func (q Querier) DeleteDisplay(id uint64) error {
 
 func (q Querier) CreateDisplay(username, title, description string) (int64, error) {
 	sql, params, err := goqu.Insert("displays").Cols(
-		"username", "title", "descr",
+		"username", "title", "descr", "photourl",
 	).Vals(
-		goqu.Vals{username, title, description},
-	).ToSQL()
+		goqu.Vals{username, title, description, ""},
+	).Returning("id").ToSQL()
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("failed to create sql query from parameters: %w", err)
 	}
-	res, err := q.DB.Exec(sql, params...)
+	var id int64
+	err = q.DB.QueryRow(sql, params...).Scan(&id)
 	if err != nil {
-		return 0, err
-	}
-	id, err := res.LastInsertId()
-	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("failed to execute database query: %w", err)
 	}
 	return id, nil
 }
