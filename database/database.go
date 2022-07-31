@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/carpedeez/store/config"
+	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
 func Open(ctx context.Context, c config.DBConfig) (*sql.DB, error) {

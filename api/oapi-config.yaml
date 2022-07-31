@@ -1,0 +1,4 @@
+package: facade
+generate:
+  spec: true
+  chi-server: true

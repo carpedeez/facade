@@ -7,6 +7,7 @@ info:
 servers:
   - url: https://facade.carpedeez.io/v0
 paths:
+
   /assets:
     post:
       summary: Upload file
@@ -116,18 +117,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /{username}/{displayID}:
+  /d: #d for display
+    post:
+      parameters:
+        - name: display
+          in: query
+          schema: 
+            $ref: '#/components/schemas/Display'
+          style: form
+          explode: true   
+      summary: Create display
+      operationId: createDisplay
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Display'
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /d/{displayID}:
     get:
       summary: Get display
-      operationId: getDisplays
+      operationId: getDisplay
       parameters:
-        - name: username
-          required: true
-          in: path
-          schema:
-            type: string
-            minLength: 3
-            maxLength: 20
         - name: displayID
           required: true
           in: path
@@ -150,53 +168,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-    post:
-      summary: Create display
-      operationId: createDisplay
-      parameters:
-        - name: username
-          required: true
-          in: path
-          schema:
-            type: string
-            minLength: 3
-            maxLength: 20
-        - name: displayID
-          required: true
-          in: path
-          schema:
-            type: integer
-            format: uint64
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Display'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Display'
-        default:
-          description: Unexpected Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+
     patch:
       summary: Update display
       operationId: updateDisplay
       parameters:
-        - name: username
-          required: true
-          in: path
-          schema:
-            type: string
-            minLength: 3
-            maxLength: 20
         - name: displayID
           required: true
           in: path
@@ -226,13 +202,6 @@ paths:
       summary: Delete display
       operationId: deleteDisplay
       parameters:
-        - name: username
-          required: true
-          in: path
-          schema:
-            type: string
-            minLength: 3
-            maxLength: 20
         - name: displayID
           required: true
           in: path
@@ -248,24 +217,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /{username}/{displayID}/{itemID}:
+  /i: #i for item
+    post:
+      summary: Create Item
+      operationId: createItem
+      parameters:
+        - name: item
+          in: query
+          schema: 
+            $ref: '#/components/schemas/Item'
+          style: form
+          explode: true   
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /i/{itemID}:
     get:
       summary: Get item
       operationId: getItem
       parameters:
-        - name: username
-          required: true
-          in: path
-          schema:
-            type: string
-            minLength: 3
-            maxLength: 20
-        - name: displayID
-          required: true
-          in: path
-          schema:
-            type: integer
-            format: uint64
         - name: itemID
           required: true
           in: path
@@ -288,65 +268,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-    post:
-      summary: Create item
-      operationId: createItem
-      parameters:
-        - name: username
-          required: true
-          in: path
-          schema:
-            type: string
-            minLength: 3
-            maxLength: 20
-        - name: displayID
-          required: true
-          in: path
-          schema:
-            type: integer
-            format: uint64
-        - name: itemID
-          required: true
-          in: path
-          schema: 
-            type: integer
-            format: uint64
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Item'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Item'
-        default:
-          description: Unexpected Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
     patch:
       summary: Update item
       operationId: updateItem
       parameters:
-        - name: username
-          required: true
-          in: path
-          schema:
-            type: string
-            minLength: 3
-            maxLength: 20
-        - name: displayID
-          required: true
-          in: path
-          schema:
-            type: integer
-            format: uint64
         - name: itemID
           required: true
           in: path
@@ -375,20 +300,7 @@ paths:
     delete:
       summary: Delete item
       operationId: deleteItem
-      parameters:
-        - name: username
-          required: true
-          in: path
-          schema:
-            type: string
-            minLength: 3
-            maxLength: 20
-        - name: displayID
-          required: true
-          in: path
-          schema:
-            type: integer
-            format: uint64
+      parameters: 
         - name: itemID
           required: true
           in: path
@@ -419,8 +331,6 @@ components:
           type: string
           format: binary
     User:
-      required:
-        - username
       type: object
       additionalProperties: false
       properties:
@@ -442,8 +352,6 @@ components:
           items: 
             type: string
     Display:
-      required:
-        - id
       type: object
       additionalProperties: false
       properties:
@@ -451,6 +359,8 @@ components:
           type: integer
           format: uint64
         username:
+          type: string
+        title:
           type: string
         description:
           type: string
@@ -462,8 +372,6 @@ components:
             type: integer
             format: uint64
     Item:
-      required:
-        - id
       type: object
       additionalProperties: false
       properties:

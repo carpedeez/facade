@@ -226,92 +226,19 @@ This operation does not require authentication
 This operation does not require authentication
 </aside>
 
-## getDisplays
-
-<a id="opIdgetDisplays"></a>
-
-`GET /{username}/{displayID}`
-
-*Get display*
-
-<h3 id="getdisplays-parameters">Parameters</h3>
-
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|username|path|string|true|none|
-|displayID|path|integer(uint64)|true|none|
-
-> Example responses
-
-> 200 Response
-
-```json
-[
-  {
-    "id": 0,
-    "username": "string",
-    "description": "string",
-    "photoURL": "string",
-    "itemIDs": [
-      0
-    ]
-  }
-]
-```
-
-<h3 id="getdisplays-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|Inline|
-|default|Default|Unexpected Error|[Error](#schemaerror)|
-
-<h3 id="getdisplays-responseschema">Response Schema</h3>
-
-Status Code **200**
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|*anonymous*|[[Display](#schemadisplay)]|false|none|none|
-|» id|integer(uint64)|true|none|none|
-|» username|string|false|none|none|
-|» description|string|false|none|none|
-|» photoURL|string|false|none|none|
-|» itemIDs|[integer]|false|none|none|
-
-<aside class="success">
-This operation does not require authentication
-</aside>
-
 ## createDisplay
 
 <a id="opIdcreateDisplay"></a>
 
-`POST /{username}/{displayID}`
+`POST /d`
 
 *Create display*
-
-> Body parameter
-
-```json
-{
-  "id": 0,
-  "username": "string",
-  "description": "string",
-  "photoURL": "string",
-  "itemIDs": [
-    0
-  ]
-}
-```
 
 <h3 id="createdisplay-parameters">Parameters</h3>
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|username|path|string|true|none|
-|displayID|path|integer(uint64)|true|none|
-|body|body|[Display](#schemadisplay)|true|none|
+|display|query|[Display](#schemadisplay)|false|none|
 
 > Example responses
 
@@ -321,6 +248,7 @@ This operation does not require authentication
 {
   "id": 0,
   "username": "string",
+  "title": "string",
   "description": "string",
   "photoURL": "string",
   "itemIDs": [
@@ -340,11 +268,69 @@ This operation does not require authentication
 This operation does not require authentication
 </aside>
 
+## getDisplay
+
+<a id="opIdgetDisplay"></a>
+
+`GET /d/{displayID}`
+
+*Get display*
+
+<h3 id="getdisplay-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|displayID|path|integer(uint64)|true|none|
+
+> Example responses
+
+> 200 Response
+
+```json
+[
+  {
+    "id": 0,
+    "username": "string",
+    "title": "string",
+    "description": "string",
+    "photoURL": "string",
+    "itemIDs": [
+      0
+    ]
+  }
+]
+```
+
+<h3 id="getdisplay-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|Inline|
+|default|Default|Unexpected Error|[Error](#schemaerror)|
+
+<h3 id="getdisplay-responseschema">Response Schema</h3>
+
+Status Code **200**
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|*anonymous*|[[Display](#schemadisplay)]|false|none|none|
+|» id|integer(uint64)|false|none|none|
+|» username|string|false|none|none|
+|» title|string|false|none|none|
+|» description|string|false|none|none|
+|» photoURL|string|false|none|none|
+|» itemIDs|[integer]|false|none|none|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+
 ## updateDisplay
 
 <a id="opIdupdateDisplay"></a>
 
-`PATCH /{username}/{displayID}`
+`PATCH /d/{displayID}`
 
 *Update display*
 
@@ -354,6 +340,7 @@ This operation does not require authentication
 {
   "id": 0,
   "username": "string",
+  "title": "string",
   "description": "string",
   "photoURL": "string",
   "itemIDs": [
@@ -366,7 +353,6 @@ This operation does not require authentication
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|username|path|string|true|none|
 |displayID|path|integer(uint64)|true|none|
 |body|body|[Display](#schemadisplay)|true|none|
 
@@ -378,6 +364,7 @@ This operation does not require authentication
 {
   "id": 0,
   "username": "string",
+  "title": "string",
   "description": "string",
   "photoURL": "string",
   "itemIDs": [
@@ -401,7 +388,7 @@ This operation does not require authentication
 
 <a id="opIddeleteDisplay"></a>
 
-`DELETE /{username}/{displayID}`
+`DELETE /d/{displayID}`
 
 *Delete display*
 
@@ -409,7 +396,6 @@ This operation does not require authentication
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|username|path|string|true|none|
 |displayID|path|integer(uint64)|true|none|
 
 > Example responses
@@ -434,11 +420,51 @@ This operation does not require authentication
 This operation does not require authentication
 </aside>
 
+## createItem
+
+<a id="opIdcreateItem"></a>
+
+`POST /i`
+
+*Create Item*
+
+<h3 id="createitem-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|item|query|[Item](#schemaitem)|false|none|
+
+> Example responses
+
+> 200 Response
+
+```json
+{
+  "id": 0,
+  "externalLink": "string",
+  "socialPostLink": "string",
+  "photoURL": "string",
+  "username": "string",
+  "displayID": 0
+}
+```
+
+<h3 id="createitem-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[Item](#schemaitem)|
+|default|Default|Unexpected Error|[Error](#schemaerror)|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+
 ## getItem
 
 <a id="opIdgetItem"></a>
 
-`GET /{username}/{displayID}/{itemID}`
+`GET /i/{itemID}`
 
 *Get item*
 
@@ -446,8 +472,6 @@ This operation does not require authentication
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|username|path|string|true|none|
-|displayID|path|integer(uint64)|true|none|
 |itemID|path|integer(uint64)|true|none|
 
 > Example responses
@@ -481,7 +505,7 @@ Status Code **200**
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
 |*anonymous*|[[Item](#schemaitem)]|false|none|none|
-|» id|integer(uint64)|true|none|none|
+|» id|integer(uint64)|false|none|none|
 |» externalLink|string|false|none|none|
 |» socialPostLink|string|false|none|none|
 |» photoURL|string|false|none|none|
@@ -492,67 +516,11 @@ Status Code **200**
 This operation does not require authentication
 </aside>
 
-## createItem
-
-<a id="opIdcreateItem"></a>
-
-`POST /{username}/{displayID}/{itemID}`
-
-*Create item*
-
-> Body parameter
-
-```json
-{
-  "id": 0,
-  "externalLink": "string",
-  "socialPostLink": "string",
-  "photoURL": "string",
-  "username": "string",
-  "displayID": 0
-}
-```
-
-<h3 id="createitem-parameters">Parameters</h3>
-
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|username|path|string|true|none|
-|displayID|path|integer(uint64)|true|none|
-|itemID|path|integer(uint64)|true|none|
-|body|body|[Item](#schemaitem)|true|none|
-
-> Example responses
-
-> 200 Response
-
-```json
-{
-  "id": 0,
-  "externalLink": "string",
-  "socialPostLink": "string",
-  "photoURL": "string",
-  "username": "string",
-  "displayID": 0
-}
-```
-
-<h3 id="createitem-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[Item](#schemaitem)|
-|default|Default|Unexpected Error|[Error](#schemaerror)|
-
-<aside class="success">
-This operation does not require authentication
-</aside>
-
 ## updateItem
 
 <a id="opIdupdateItem"></a>
 
-`PATCH /{username}/{displayID}/{itemID}`
+`PATCH /i/{itemID}`
 
 *Update item*
 
@@ -573,8 +541,6 @@ This operation does not require authentication
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|username|path|string|true|none|
-|displayID|path|integer(uint64)|true|none|
 |itemID|path|integer(uint64)|true|none|
 |body|body|[Item](#schemaitem)|true|none|
 
@@ -608,7 +574,7 @@ This operation does not require authentication
 
 <a id="opIddeleteItem"></a>
 
-`DELETE /{username}/{displayID}/{itemID}`
+`DELETE /i/{itemID}`
 
 *Delete item*
 
@@ -616,8 +582,6 @@ This operation does not require authentication
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|username|path|string|true|none|
-|displayID|path|integer(uint64)|true|none|
 |itemID|path|integer(uint64)|true|none|
 
 > Example responses
@@ -693,7 +657,7 @@ This operation does not require authentication
 
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
-|username|string|true|none|none|
+|username|string|false|none|none|
 |fname|string|false|none|none|
 |lname|string|false|none|none|
 |displayIDs|[integer]|false|none|none|
@@ -711,6 +675,7 @@ This operation does not require authentication
 {
   "id": 0,
   "username": "string",
+  "title": "string",
   "description": "string",
   "photoURL": "string",
   "itemIDs": [
@@ -724,8 +689,9 @@ This operation does not require authentication
 
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
-|id|integer(uint64)|true|none|none|
+|id|integer(uint64)|false|none|none|
 |username|string|false|none|none|
+|title|string|false|none|none|
 |description|string|false|none|none|
 |photoURL|string|false|none|none|
 |itemIDs|[integer]|false|none|none|
@@ -753,7 +719,7 @@ This operation does not require authentication
 
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
-|id|integer(uint64)|true|none|none|
+|id|integer(uint64)|false|none|none|
 |externalLink|string|false|none|none|
 |socialPostLink|string|false|none|none|
 |photoURL|string|false|none|none|

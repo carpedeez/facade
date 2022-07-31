@@ -11,6 +11,7 @@ CREATE TABLE displays
 (
     id SERIAL PRIMARY KEY,
     username VARCHAR REFERENCES users(username),
+    title VARCHAR NOT NULL,
     descr VARCHAR NOT NULL, --description
     photoURL VARCHAR NOT NULL
 );

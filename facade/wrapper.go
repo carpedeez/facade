@@ -16,6 +16,30 @@ type ServerInterface interface {
 	// Upload file
 	// (POST /assets)
 	UploadFile(w http.ResponseWriter, r *http.Request)
+	// Create display
+	// (POST /d)
+	CreateDisplay(w http.ResponseWriter, r *http.Request, params CreateDisplayParams)
+	// Delete display
+	// (DELETE /d/{displayID})
+	DeleteDisplay(w http.ResponseWriter, r *http.Request, displayID uint64)
+	// Get display
+	// (GET /d/{displayID})
+	GetDisplay(w http.ResponseWriter, r *http.Request, displayID uint64)
+	// Update display
+	// (PATCH /d/{displayID})
+	UpdateDisplay(w http.ResponseWriter, r *http.Request, displayID uint64)
+	// Create Item
+	// (POST /i)
+	CreateItem(w http.ResponseWriter, r *http.Request, params CreateItemParams)
+	// Delete item
+	// (DELETE /i/{itemID})
+	DeleteItem(w http.ResponseWriter, r *http.Request, itemID uint64)
+	// Get item
+	// (GET /i/{itemID})
+	GetItem(w http.ResponseWriter, r *http.Request, itemID uint64)
+	// Update item
+	// (PATCH /i/{itemID})
+	UpdateItem(w http.ResponseWriter, r *http.Request, itemID uint64)
 	// Get user
 	// (GET /{username})
 	GetUser(w http.ResponseWriter, r *http.Request, username string)
@@ -25,30 +49,6 @@ type ServerInterface interface {
 	// Create user
 	// (POST /{username})
 	CreateUser(w http.ResponseWriter, r *http.Request, username string)
-	// Delete display
-	// (DELETE /{username}/{displayID})
-	DeleteDisplay(w http.ResponseWriter, r *http.Request, username string, displayID uint64)
-	// Get display
-	// (GET /{username}/{displayID})
-	GetDisplays(w http.ResponseWriter, r *http.Request, username string, displayID uint64)
-	// Update display
-	// (PATCH /{username}/{displayID})
-	UpdateDisplay(w http.ResponseWriter, r *http.Request, username string, displayID uint64)
-	// Create display
-	// (POST /{username}/{displayID})
-	CreateDisplay(w http.ResponseWriter, r *http.Request, username string, displayID uint64)
-	// Delete item
-	// (DELETE /{username}/{displayID}/{itemID})
-	DeleteItem(w http.ResponseWriter, r *http.Request, username string, displayID uint64, itemID uint64)
-	// Get item
-	// (GET /{username}/{displayID}/{itemID})
-	GetItem(w http.ResponseWriter, r *http.Request, username string, displayID uint64, itemID uint64)
-	// Update item
-	// (PATCH /{username}/{displayID}/{itemID})
-	UpdateItem(w http.ResponseWriter, r *http.Request, username string, displayID uint64, itemID uint64)
-	// Create item
-	// (POST /{username}/{displayID}/{itemID})
-	CreateItem(w http.ResponseWriter, r *http.Request, username string, displayID uint64, itemID uint64)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -66,6 +66,224 @@ func (siw *ServerInterfaceWrapper) UploadFile(w http.ResponseWriter, r *http.Req
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.UploadFile(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// CreateDisplay operation middleware
+func (siw *ServerInterfaceWrapper) CreateDisplay(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params CreateDisplayParams
+
+	// ------------- Optional query parameter "display" -------------
+	if paramValue := r.URL.Query().Get("display"); paramValue != "" {
+
+	}
+
+	err = runtime.BindQueryParameter("form", true, false, "display", r.URL.Query(), &params.Display)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "display", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateDisplay(w, r, params)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// DeleteDisplay operation middleware
+func (siw *ServerInterfaceWrapper) DeleteDisplay(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "displayID" -------------
+	var displayID uint64
+
+	err = runtime.BindStyledParameter("simple", false, "displayID", chi.URLParam(r, "displayID"), &displayID)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "displayID", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DeleteDisplay(w, r, displayID)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// GetDisplay operation middleware
+func (siw *ServerInterfaceWrapper) GetDisplay(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "displayID" -------------
+	var displayID uint64
+
+	err = runtime.BindStyledParameter("simple", false, "displayID", chi.URLParam(r, "displayID"), &displayID)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "displayID", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetDisplay(w, r, displayID)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// UpdateDisplay operation middleware
+func (siw *ServerInterfaceWrapper) UpdateDisplay(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "displayID" -------------
+	var displayID uint64
+
+	err = runtime.BindStyledParameter("simple", false, "displayID", chi.URLParam(r, "displayID"), &displayID)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "displayID", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdateDisplay(w, r, displayID)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// CreateItem operation middleware
+func (siw *ServerInterfaceWrapper) CreateItem(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params CreateItemParams
+
+	// ------------- Optional query parameter "item" -------------
+	if paramValue := r.URL.Query().Get("item"); paramValue != "" {
+
+	}
+
+	err = runtime.BindQueryParameter("form", true, false, "item", r.URL.Query(), &params.Item)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "item", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateItem(w, r, params)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// DeleteItem operation middleware
+func (siw *ServerInterfaceWrapper) DeleteItem(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "itemID" -------------
+	var itemID uint64
+
+	err = runtime.BindStyledParameter("simple", false, "itemID", chi.URLParam(r, "itemID"), &itemID)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "itemID", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DeleteItem(w, r, itemID)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// GetItem operation middleware
+func (siw *ServerInterfaceWrapper) GetItem(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "itemID" -------------
+	var itemID uint64
+
+	err = runtime.BindStyledParameter("simple", false, "itemID", chi.URLParam(r, "itemID"), &itemID)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "itemID", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetItem(w, r, itemID)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// UpdateItem operation middleware
+func (siw *ServerInterfaceWrapper) UpdateItem(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "itemID" -------------
+	var itemID uint64
+
+	err = runtime.BindStyledParameter("simple", false, "itemID", chi.URLParam(r, "itemID"), &itemID)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "itemID", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdateItem(w, r, itemID)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -144,322 +362,6 @@ func (siw *ServerInterfaceWrapper) CreateUser(w http.ResponseWriter, r *http.Req
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.CreateUser(w, r, username)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// DeleteDisplay operation middleware
-func (siw *ServerInterfaceWrapper) DeleteDisplay(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "username" -------------
-	var username string
-
-	err = runtime.BindStyledParameter("simple", false, "username", chi.URLParam(r, "username"), &username)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "username", Err: err})
-		return
-	}
-
-	// ------------- Path parameter "displayID" -------------
-	var displayID uint64
-
-	err = runtime.BindStyledParameter("simple", false, "displayID", chi.URLParam(r, "displayID"), &displayID)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "displayID", Err: err})
-		return
-	}
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.DeleteDisplay(w, r, username, displayID)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// GetDisplays operation middleware
-func (siw *ServerInterfaceWrapper) GetDisplays(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "username" -------------
-	var username string
-
-	err = runtime.BindStyledParameter("simple", false, "username", chi.URLParam(r, "username"), &username)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "username", Err: err})
-		return
-	}
-
-	// ------------- Path parameter "displayID" -------------
-	var displayID uint64
-
-	err = runtime.BindStyledParameter("simple", false, "displayID", chi.URLParam(r, "displayID"), &displayID)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "displayID", Err: err})
-		return
-	}
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetDisplays(w, r, username, displayID)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// UpdateDisplay operation middleware
-func (siw *ServerInterfaceWrapper) UpdateDisplay(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "username" -------------
-	var username string
-
-	err = runtime.BindStyledParameter("simple", false, "username", chi.URLParam(r, "username"), &username)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "username", Err: err})
-		return
-	}
-
-	// ------------- Path parameter "displayID" -------------
-	var displayID uint64
-
-	err = runtime.BindStyledParameter("simple", false, "displayID", chi.URLParam(r, "displayID"), &displayID)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "displayID", Err: err})
-		return
-	}
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.UpdateDisplay(w, r, username, displayID)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// CreateDisplay operation middleware
-func (siw *ServerInterfaceWrapper) CreateDisplay(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "username" -------------
-	var username string
-
-	err = runtime.BindStyledParameter("simple", false, "username", chi.URLParam(r, "username"), &username)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "username", Err: err})
-		return
-	}
-
-	// ------------- Path parameter "displayID" -------------
-	var displayID uint64
-
-	err = runtime.BindStyledParameter("simple", false, "displayID", chi.URLParam(r, "displayID"), &displayID)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "displayID", Err: err})
-		return
-	}
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.CreateDisplay(w, r, username, displayID)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// DeleteItem operation middleware
-func (siw *ServerInterfaceWrapper) DeleteItem(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "username" -------------
-	var username string
-
-	err = runtime.BindStyledParameter("simple", false, "username", chi.URLParam(r, "username"), &username)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "username", Err: err})
-		return
-	}
-
-	// ------------- Path parameter "displayID" -------------
-	var displayID uint64
-
-	err = runtime.BindStyledParameter("simple", false, "displayID", chi.URLParam(r, "displayID"), &displayID)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "displayID", Err: err})
-		return
-	}
-
-	// ------------- Path parameter "itemID" -------------
-	var itemID uint64
-
-	err = runtime.BindStyledParameter("simple", false, "itemID", chi.URLParam(r, "itemID"), &itemID)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "itemID", Err: err})
-		return
-	}
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.DeleteItem(w, r, username, displayID, itemID)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// GetItem operation middleware
-func (siw *ServerInterfaceWrapper) GetItem(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "username" -------------
-	var username string
-
-	err = runtime.BindStyledParameter("simple", false, "username", chi.URLParam(r, "username"), &username)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "username", Err: err})
-		return
-	}
-
-	// ------------- Path parameter "displayID" -------------
-	var displayID uint64
-
-	err = runtime.BindStyledParameter("simple", false, "displayID", chi.URLParam(r, "displayID"), &displayID)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "displayID", Err: err})
-		return
-	}
-
-	// ------------- Path parameter "itemID" -------------
-	var itemID uint64
-
-	err = runtime.BindStyledParameter("simple", false, "itemID", chi.URLParam(r, "itemID"), &itemID)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "itemID", Err: err})
-		return
-	}
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetItem(w, r, username, displayID, itemID)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// UpdateItem operation middleware
-func (siw *ServerInterfaceWrapper) UpdateItem(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "username" -------------
-	var username string
-
-	err = runtime.BindStyledParameter("simple", false, "username", chi.URLParam(r, "username"), &username)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "username", Err: err})
-		return
-	}
-
-	// ------------- Path parameter "displayID" -------------
-	var displayID uint64
-
-	err = runtime.BindStyledParameter("simple", false, "displayID", chi.URLParam(r, "displayID"), &displayID)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "displayID", Err: err})
-		return
-	}
-
-	// ------------- Path parameter "itemID" -------------
-	var itemID uint64
-
-	err = runtime.BindStyledParameter("simple", false, "itemID", chi.URLParam(r, "itemID"), &itemID)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "itemID", Err: err})
-		return
-	}
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.UpdateItem(w, r, username, displayID, itemID)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// CreateItem operation middleware
-func (siw *ServerInterfaceWrapper) CreateItem(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "username" -------------
-	var username string
-
-	err = runtime.BindStyledParameter("simple", false, "username", chi.URLParam(r, "username"), &username)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "username", Err: err})
-		return
-	}
-
-	// ------------- Path parameter "displayID" -------------
-	var displayID uint64
-
-	err = runtime.BindStyledParameter("simple", false, "displayID", chi.URLParam(r, "displayID"), &displayID)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "displayID", Err: err})
-		return
-	}
-
-	// ------------- Path parameter "itemID" -------------
-	var itemID uint64
-
-	err = runtime.BindStyledParameter("simple", false, "itemID", chi.URLParam(r, "itemID"), &itemID)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "itemID", Err: err})
-		return
-	}
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.CreateItem(w, r, username, displayID, itemID)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -586,6 +488,30 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/assets", wrapper.UploadFile)
 	})
 	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/d", wrapper.CreateDisplay)
+	})
+	r.Group(func(r chi.Router) {
+		r.Delete(options.BaseURL+"/d/{displayID}", wrapper.DeleteDisplay)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/d/{displayID}", wrapper.GetDisplay)
+	})
+	r.Group(func(r chi.Router) {
+		r.Patch(options.BaseURL+"/d/{displayID}", wrapper.UpdateDisplay)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/i", wrapper.CreateItem)
+	})
+	r.Group(func(r chi.Router) {
+		r.Delete(options.BaseURL+"/i/{itemID}", wrapper.DeleteItem)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/i/{itemID}", wrapper.GetItem)
+	})
+	r.Group(func(r chi.Router) {
+		r.Patch(options.BaseURL+"/i/{itemID}", wrapper.UpdateItem)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/{username}", wrapper.GetUser)
 	})
 	r.Group(func(r chi.Router) {
@@ -593,30 +519,6 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/{username}", wrapper.CreateUser)
-	})
-	r.Group(func(r chi.Router) {
-		r.Delete(options.BaseURL+"/{username}/{displayID}", wrapper.DeleteDisplay)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/{username}/{displayID}", wrapper.GetDisplays)
-	})
-	r.Group(func(r chi.Router) {
-		r.Patch(options.BaseURL+"/{username}/{displayID}", wrapper.UpdateDisplay)
-	})
-	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/{username}/{displayID}", wrapper.CreateDisplay)
-	})
-	r.Group(func(r chi.Router) {
-		r.Delete(options.BaseURL+"/{username}/{displayID}/{itemID}", wrapper.DeleteItem)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/{username}/{displayID}/{itemID}", wrapper.GetItem)
-	})
-	r.Group(func(r chi.Router) {
-		r.Patch(options.BaseURL+"/{username}/{displayID}/{itemID}", wrapper.UpdateItem)
-	})
-	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/{username}/{displayID}/{itemID}", wrapper.CreateItem)
 	})
 
 	return r

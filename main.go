@@ -36,7 +36,7 @@ func main() {
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
 
-	f := facade.Facade{DB: db}
+	f := facade.Facade{Querier: &database.Querier{DB: db}}
 	handler := facade.HandlerWithOptions(f, facade.ChiServerOptions{
 		BaseURL:    "",
 		BaseRouter: r,
@@ -44,8 +44,12 @@ func main() {
 		},
 	})
 
-	err = http.ListenAndServe(fmt.Sprintf(":%s", config.FacadeConfig.Port), handler)
-	if err != nil {
-		fmt.Printf("failed to listen and serve api: %v", err)
-	}
+	go func() {
+		err = http.ListenAndServe(fmt.Sprintf(":%s", config.FacadeConfig.Port), handler)
+		if err != nil {
+			fmt.Printf("failed to listen and serve api: %v", err)
+		}
+	}()
+
+	<-ctx.Done()
 }

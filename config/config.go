@@ -9,7 +9,7 @@ import (
 
 type Config struct {
 	FacadeConfig `yaml:"facade"`
-	DBConfig     `yaml:"db"`
+	DBConfig     `yaml:"database"`
 	LogConfig    `yaml:"log"`
 }
 
