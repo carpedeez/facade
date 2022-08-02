@@ -58,11 +58,64 @@ file: string
 This operation does not require authentication
 </aside>
 
+## createUser
+
+<a id="opIdcreateUser"></a>
+
+`POST /u`
+
+*Create user*
+
+> Body parameter
+
+```json
+{
+  "username": "string",
+  "fname": "string",
+  "lname": "string",
+  "displayIDs": [
+    0
+  ],
+  "photoURL": "string",
+  "socialLinks": [
+    "string"
+  ]
+}
+```
+
+<h3 id="createuser-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|[User](#schemauser)|true|none|
+
+> Example responses
+
+> default Response
+
+```json
+{
+  "code": 0,
+  "message": "string"
+}
+```
+
+<h3 id="createuser-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|204|[No Content](https://tools.ietf.org/html/rfc7231#section-6.3.5)|OK|None|
+|default|Default|Unexpected Error|[Error](#schemaerror)|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+
 ## getUser
 
 <a id="opIdgetUser"></a>
 
-`GET /{username}`
+`GET /u/{username}`
 
 *Get user*
 
@@ -102,73 +155,11 @@ This operation does not require authentication
 This operation does not require authentication
 </aside>
 
-## createUser
-
-<a id="opIdcreateUser"></a>
-
-`POST /{username}`
-
-*Create user*
-
-> Body parameter
-
-```json
-{
-  "username": "string",
-  "fname": "string",
-  "lname": "string",
-  "displayIDs": [
-    0
-  ],
-  "photoURL": "string",
-  "socialLinks": [
-    "string"
-  ]
-}
-```
-
-<h3 id="createuser-parameters">Parameters</h3>
-
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|username|path|string|true|none|
-|body|body|[User](#schemauser)|true|none|
-
-> Example responses
-
-> 200 Response
-
-```json
-{
-  "username": "string",
-  "fname": "string",
-  "lname": "string",
-  "displayIDs": [
-    0
-  ],
-  "photoURL": "string",
-  "socialLinks": [
-    "string"
-  ]
-}
-```
-
-<h3 id="createuser-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[User](#schemauser)|
-|default|Default|Unexpected Error|[Error](#schemaerror)|
-
-<aside class="success">
-This operation does not require authentication
-</aside>
-
 ## updateUser
 
 <a id="opIdupdateUser"></a>
 
-`PATCH /{username}`
+`PATCH /u/{username}`
 
 *Update user*
 
@@ -234,15 +225,7 @@ This operation does not require authentication
 
 *Create display*
 
-<h3 id="createdisplay-parameters">Parameters</h3>
-
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|display|query|[Display](#schemadisplay)|false|none|
-
-> Example responses
-
-> 200 Response
+> Body parameter
 
 ```json
 {
@@ -257,11 +240,25 @@ This operation does not require authentication
 }
 ```
 
+<h3 id="createdisplay-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|[Display](#schemadisplay)|true|none|
+
+> Example responses
+
+> 200 Response
+
+```json
+0
+```
+
 <h3 id="createdisplay-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[Display](#schemadisplay)|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|integer|
 |400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request|None|
 |default|Default|Unexpected Error|[Error](#schemaerror)|
 
@@ -413,11 +410,24 @@ This operation does not require authentication
 
 *Create Item*
 
+> Body parameter
+
+```json
+{
+  "id": 0,
+  "externalLink": "string",
+  "socialPostLink": "string",
+  "photoURL": "string",
+  "username": "string",
+  "displayID": 0
+}
+```
+
 <h3 id="createitem-parameters">Parameters</h3>
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|item|query|[Item](#schemaitem)|false|none|
+|body|body|[Item](#schemaitem)|true|none|
 
 > Example responses
 
@@ -626,12 +636,12 @@ This operation does not require authentication
 
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
-|username|string|false|none|none|
-|fname|string|false|none|none|
-|lname|string|false|none|none|
-|displayIDs|[integer]|false|none|none|
-|photoURL|string|false|none|none|
-|socialLinks|[string]|false|none|none|
+|username|string|true|none|none|
+|fname|string|true|none|none|
+|lname|string|true|none|none|
+|displayIDs|[integer]|true|none|none|
+|photoURL|string|true|none|none|
+|socialLinks|[string]|true|none|none|
 
 <h2 id="tocS_Display">Display</h2>
 <!-- backwards compatibility -->
@@ -658,12 +668,12 @@ This operation does not require authentication
 
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
-|id|integer(int64)|false|none|none|
-|username|string|false|none|none|
-|title|string|false|none|none|
-|description|string|false|none|none|
-|photoURL|string|false|none|none|
-|itemIDs|[integer]|false|none|none|
+|id|integer(int64)|true|none|none|
+|username|string|true|none|none|
+|title|string|true|none|none|
+|description|string|true|none|none|
+|photoURL|string|true|none|none|
+|itemIDs|[integer]|true|none|none|
 
 <h2 id="tocS_Item">Item</h2>
 <!-- backwards compatibility -->
@@ -688,12 +698,12 @@ This operation does not require authentication
 
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
-|id|integer(int64)|false|none|none|
-|externalLink|string|false|none|none|
-|socialPostLink|string|false|none|none|
-|photoURL|string|false|none|none|
-|username|string|false|none|none|
-|displayID|integer(int64)|false|none|none|
+|id|integer(int64)|true|none|none|
+|externalLink|string|true|none|none|
+|socialPostLink|string|true|none|none|
+|photoURL|string|true|none|none|
+|username|string|true|none|none|
+|displayID|integer(int64)|true|none|none|
 
 <h2 id="tocS_Error">Error</h2>
 <!-- backwards compatibility -->

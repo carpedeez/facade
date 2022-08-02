@@ -31,7 +31,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /{username}:
+  /u:
+    post:
+      summary: Create user
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '204':
+          description: OK
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /u/{username}:
     get:
       summary: Get user
       operationId: getUser
@@ -55,37 +74,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-    post:
-      summary: Create user
-      operationId: createUser
-      parameters:
-        - name: username
-          required: true
-          in: path
-          schema:
-            type: string
-            minLength: 3
-            maxLength: 20
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-        default:
-          description: Unexpected Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'    
     patch:
       summary: Update user
       operationId: updateUser
@@ -118,13 +107,12 @@ paths:
                 $ref: '#/components/schemas/Error'
   /d: #d for display
     post:
-      parameters:
-        - name: display
-          in: query
-          schema: 
-            $ref: '#/components/schemas/Display'
-          style: form
-          explode: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Display'
       summary: Create display
       operationId: createDisplay
       responses:
@@ -132,8 +120,9 @@ paths:
           description: OK
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Display'
+              schema: 
+                type: integer
+                format: int64
         '400':
           description: Bad Request
         default:
@@ -218,13 +207,12 @@ paths:
     post:
       summary: Create Item
       operationId: createItem
-      parameters:
-        - name: item
-          in: query
-          schema: 
-            $ref: '#/components/schemas/Item'
-          style: form
-          explode: true   
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Item'
       responses:
         '200':
           description: OK
@@ -325,6 +313,13 @@ components:
           type: string
           format: binary
     User:
+      required:
+        - username
+        - fname
+        - lname
+        - displayIDs
+        - photoURL
+        - socialLinks
       type: object
       additionalProperties: false
       properties:
@@ -346,6 +341,13 @@ components:
           items: 
             type: string
     Display:
+      required:
+        - id
+        - username
+        - title
+        - description
+        - photoURL
+        - itemIDs
       type: object
       additionalProperties: false
       properties:
@@ -366,6 +368,13 @@ components:
             type: integer
             format: int64
     Item:
+      required:
+        - id
+        - externalLink
+        - socialPostLink
+        - photoURL
+        - username
+        - displayID
       type: object
       additionalProperties: false
       properties:

@@ -1,6 +1,7 @@
 package facade
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/carpedeez/store/database"
@@ -18,12 +19,18 @@ func (f Facade) UploadFile(w http.ResponseWriter, r *http.Request) *Response {
 
 // Create display
 // (POST /d)
-func (f Facade) CreateDisplay(w http.ResponseWriter, r *http.Request, params CreateDisplayParams) *Response {
-	if params.Display.Description == nil || params.Display.Title == nil || params.Display.Username == nil { // dereferencing nil pointers = panic, so we gotta check before we call CreateDisplay
-		w.WriteHeader(http.StatusBadRequest)
+func (f Facade) CreateDisplay(w http.ResponseWriter, r *http.Request) *Response {
+	display := Display{}
+	err := json.NewDecoder(r.Body).Decode(&display)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return nil
 	}
-	id, err := f.Querier.CreateDisplay(*params.Display.Username, *params.Display.Title, *params.Display.Description) // should we respond with the serial number and redirect them? should we respond with the whole object?
+	if display.Description == "" || display.Title == "" || display.Username == "" { // dereferencing nil pointers = panic, so we gotta check before we call CreateDisplay
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return nil
+	}
+	id, err := f.Querier.CreateDisplay(display.Username, display.Title, display.Description) // should we respond with the serial number and redirect them? should we respond with the whole object?
 	if err != nil {
 		return CreateDisplayJSONDefaultResponse(Error{
 			Code:    http.StatusBadRequest, // this is placeholder, we need to figure out what errors we should respond with. also, is the error object (as opposed to normal status codes) ideal?
@@ -31,14 +38,7 @@ func (f Facade) CreateDisplay(w http.ResponseWriter, r *http.Request, params Cre
 		})
 	}
 
-	return CreateDisplayJSON200Response(Display{
-		Description: new(string), // this weird need for a pointer to a string is a result of not making everything required. it has to do with go's `omitempty` json flag.
-		ItemIDS:     []int64{},   // ideally, we should create types for every single request and response and make everything required. lots of time tho
-		ID:          &id,
-		PhotoURL:    new(string),
-		Title:       new(string),
-		Username:    new(string),
-	})
+	return CreateDisplayJSON200Response(id)
 }
 
 // Delete display
@@ -52,12 +52,12 @@ func (f Facade) DeleteDisplay(w http.ResponseWriter, r *http.Request, displayID 
 // (GET /d/{displayID})
 func (f Facade) GetDisplay(w http.ResponseWriter, r *http.Request, displayID int64) *Response {
 	return GetDisplayJSON200Response(Display{
-		Description: new(string),
-		ID:          new(int64),
+		Description: "",
+		ID:          0,
 		ItemIDS:     []int64{},
-		PhotoURL:    new(string),
-		Title:       new(string),
-		Username:    new(string),
+		PhotoURL:    "",
+		Title:       "",
+		Username:    "",
 	})
 }
 
@@ -65,25 +65,25 @@ func (f Facade) GetDisplay(w http.ResponseWriter, r *http.Request, displayID int
 // (PATCH /d/{displayID})
 func (f Facade) UpdateDisplay(w http.ResponseWriter, r *http.Request, displayID int64) *Response {
 	return UpdateDisplayJSON200Response(Display{
-		Description: new(string),
-		ID:          new(int64),
+		Description: "",
+		ID:          0,
 		ItemIDS:     []int64{},
-		PhotoURL:    new(string),
-		Title:       new(string),
-		Username:    new(string),
+		PhotoURL:    "",
+		Title:       "",
+		Username:    "",
 	})
 }
 
 // Create Item
 // (POST /i)
-func (f Facade) CreateItem(w http.ResponseWriter, r *http.Request, params CreateItemParams) *Response {
+func (f Facade) CreateItem(w http.ResponseWriter, r *http.Request) *Response {
 	return CreateItemJSON200Response(Item{
-		DisplayID:      new(int64),
-		ExternalLink:   new(string),
-		ID:             new(int64),
-		PhotoURL:       new(string),
-		SocialPostLink: new(string),
-		Username:       new(string),
+		DisplayID:      0,
+		ExternalLink:   "",
+		ID:             0,
+		PhotoURL:       "",
+		SocialPostLink: "",
+		Username:       "",
 	})
 }
 
@@ -98,12 +98,12 @@ func (f Facade) DeleteItem(w http.ResponseWriter, r *http.Request, itemID int64)
 // (GET /i/{itemID})
 func (f Facade) GetItem(w http.ResponseWriter, r *http.Request, itemID int64) *Response {
 	return GetItemJSON200Response(Item{
-		DisplayID:      new(int64),
-		ExternalLink:   new(string),
-		ID:             new(int64),
-		PhotoURL:       new(string),
-		SocialPostLink: new(string),
-		Username:       new(string),
+		DisplayID:      0,
+		ExternalLink:   "",
+		ID:             0,
+		PhotoURL:       "",
+		SocialPostLink: "",
+		Username:       "",
 	})
 }
 
@@ -111,12 +111,12 @@ func (f Facade) GetItem(w http.ResponseWriter, r *http.Request, itemID int64) *R
 // (PATCH /i/{itemID})
 func (f Facade) UpdateItem(w http.ResponseWriter, r *http.Request, itemID int64) *Response {
 	return UpdateItemJSON200Response(Item{
-		DisplayID:      new(int64),
-		ExternalLink:   new(string),
-		ID:             new(int64),
-		PhotoURL:       new(string),
-		SocialPostLink: new(string),
-		Username:       new(string),
+		DisplayID:      0,
+		ExternalLink:   "",
+		ID:             0,
+		PhotoURL:       "",
+		SocialPostLink: "",
+		Username:       "",
 	})
 }
 
@@ -125,11 +125,11 @@ func (f Facade) UpdateItem(w http.ResponseWriter, r *http.Request, itemID int64)
 func (f Facade) GetUser(w http.ResponseWriter, r *http.Request, username string) *Response {
 	return GetUserJSON200Response(User{
 		DisplayIDS:  []int64{},
-		Fname:       new(string),
-		Lname:       new(string),
-		PhotoURL:    new(string),
+		Fname:       "",
+		Lname:       "",
+		PhotoURL:    "",
 		SocialLinks: []string{},
-		Username:    new(string),
+		Username:    "",
 	})
 }
 
@@ -138,23 +138,32 @@ func (f Facade) GetUser(w http.ResponseWriter, r *http.Request, username string)
 func (f Facade) UpdateUser(w http.ResponseWriter, r *http.Request, username string) *Response {
 	return UpdateUserJSON200Response(User{
 		DisplayIDS:  []int64{},
-		Fname:       new(string),
-		Lname:       new(string),
-		PhotoURL:    new(string),
+		Fname:       "",
+		Lname:       "",
+		PhotoURL:    "",
 		SocialLinks: []string{},
-		Username:    new(string),
+		Username:    "",
 	})
 }
 
 // Create user
 // (POST /{username})
-func (f Facade) CreateUser(w http.ResponseWriter, r *http.Request, username string) *Response {
-	return CreateUserJSON200Response(User{
-		DisplayIDS:  []int64{},
-		Fname:       new(string),
-		Lname:       new(string),
-		PhotoURL:    new(string),
-		SocialLinks: []string{},
-		Username:    new(string),
-	})
+func (f Facade) CreateUser(w http.ResponseWriter, r *http.Request) *Response {
+	user := User{}
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return nil
+	}
+	if user.Username == "" {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return nil
+	}
+	err = f.Querier.CreateUser(user.Username, user.Fname, user.Lname)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return nil
+	}
+	w.WriteHeader(http.StatusNoContent)
+	return nil
 }

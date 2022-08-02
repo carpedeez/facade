@@ -34,8 +34,25 @@ func (q Querier) CreateDisplay(username, title, description string) (int64, erro
 	}
 	var id int64
 	err = q.DB.QueryRow(sql, params...).Scan(&id)
-	if err != nil {
+	fmt.Println(id)
+	if id == 0 {
 		return 0, fmt.Errorf("failed to execute database query: %w", err)
 	}
 	return id, nil
+}
+
+func (q Querier) CreateUser(username, fname, lname string) error {
+	sql, params, err := goqu.Insert("users").Cols(
+		"username", "fname", "lname", "photourl", "sociallinks",
+	).Vals(
+		goqu.Vals{username, fname, lname, "", "{}"},
+	).ToSQL()
+	if err != nil {
+		return fmt.Errorf("failed to create sql query from parameters: %w", err)
+	}
+	_, err = q.DB.Exec(sql, params...)
+	if err != nil {
+		return fmt.Errorf("failed to execute database query: %w", err)
+	}
+	return nil
 }

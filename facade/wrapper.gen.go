@@ -23,12 +23,12 @@ import (
 
 // Display defines model for Display.
 type Display struct {
-	Description *string `json:"description,omitempty"`
-	ID          *int64  `json:"id,omitempty"`
-	ItemIDS     []int64 `json:"itemIDs,omitempty"`
-	PhotoURL    *string `json:"photoURL,omitempty"`
-	Title       *string `json:"title,omitempty"`
-	Username    *string `json:"username,omitempty"`
+	Description string  `json:"description"`
+	ID          int64   `json:"id"`
+	ItemIDS     []int64 `json:"itemIDs"`
+	PhotoURL    string  `json:"photoURL"`
+	Title       string  `json:"title"`
+	Username    string  `json:"username"`
 }
 
 // Error defines model for Error.
@@ -39,12 +39,12 @@ type Error struct {
 
 // Item defines model for Item.
 type Item struct {
-	DisplayID      *int64  `json:"displayID,omitempty"`
-	ExternalLink   *string `json:"externalLink,omitempty"`
-	ID             *int64  `json:"id,omitempty"`
-	PhotoURL       *string `json:"photoURL,omitempty"`
-	SocialPostLink *string `json:"socialPostLink,omitempty"`
-	Username       *string `json:"username,omitempty"`
+	DisplayID      int64  `json:"displayID"`
+	ExternalLink   string `json:"externalLink"`
+	ID             int64  `json:"id"`
+	PhotoURL       string `json:"photoURL"`
+	SocialPostLink string `json:"socialPostLink"`
+	Username       string `json:"username"`
 }
 
 // Upload defines model for Upload.
@@ -55,41 +55,53 @@ type Upload struct {
 
 // User defines model for User.
 type User struct {
-	DisplayIDS  []int64  `json:"displayIDs,omitempty"`
-	Fname       *string  `json:"fname,omitempty"`
-	Lname       *string  `json:"lname,omitempty"`
-	PhotoURL    *string  `json:"photoURL,omitempty"`
-	SocialLinks []string `json:"socialLinks,omitempty"`
-	Username    *string  `json:"username,omitempty"`
+	DisplayIDS  []int64  `json:"displayIDs"`
+	Fname       string   `json:"fname"`
+	Lname       string   `json:"lname"`
+	PhotoURL    string   `json:"photoURL"`
+	SocialLinks []string `json:"socialLinks"`
+	Username    string   `json:"username"`
 }
 
-// CreateDisplayParams defines parameters for CreateDisplay.
-type CreateDisplayParams struct {
-	Display *Display `json:"display,omitempty"`
-}
+// CreateDisplayJSONBody defines parameters for CreateDisplay.
+type CreateDisplayJSONBody Display
 
 // UpdateDisplayJSONBody defines parameters for UpdateDisplay.
 type UpdateDisplayJSONBody Display
 
-// CreateItemParams defines parameters for CreateItem.
-type CreateItemParams struct {
-	Item *Item `json:"item,omitempty"`
-}
+// CreateItemJSONBody defines parameters for CreateItem.
+type CreateItemJSONBody Item
 
 // UpdateItemJSONBody defines parameters for UpdateItem.
 type UpdateItemJSONBody Item
 
+// CreateUserJSONBody defines parameters for CreateUser.
+type CreateUserJSONBody User
+
 // UpdateUserJSONBody defines parameters for UpdateUser.
 type UpdateUserJSONBody User
 
-// CreateUserJSONBody defines parameters for CreateUser.
-type CreateUserJSONBody User
+// CreateDisplayJSONRequestBody defines body for CreateDisplay for application/json ContentType.
+type CreateDisplayJSONRequestBody CreateDisplayJSONBody
+
+// Bind implements render.Binder.
+func (CreateDisplayJSONRequestBody) Bind(*http.Request) error {
+	return nil
+}
 
 // UpdateDisplayJSONRequestBody defines body for UpdateDisplay for application/json ContentType.
 type UpdateDisplayJSONRequestBody UpdateDisplayJSONBody
 
 // Bind implements render.Binder.
 func (UpdateDisplayJSONRequestBody) Bind(*http.Request) error {
+	return nil
+}
+
+// CreateItemJSONRequestBody defines body for CreateItem for application/json ContentType.
+type CreateItemJSONRequestBody CreateItemJSONBody
+
+// Bind implements render.Binder.
+func (CreateItemJSONRequestBody) Bind(*http.Request) error {
 	return nil
 }
 
@@ -101,19 +113,19 @@ func (UpdateItemJSONRequestBody) Bind(*http.Request) error {
 	return nil
 }
 
-// UpdateUserJSONRequestBody defines body for UpdateUser for application/json ContentType.
-type UpdateUserJSONRequestBody UpdateUserJSONBody
-
-// Bind implements render.Binder.
-func (UpdateUserJSONRequestBody) Bind(*http.Request) error {
-	return nil
-}
-
 // CreateUserJSONRequestBody defines body for CreateUser for application/json ContentType.
 type CreateUserJSONRequestBody CreateUserJSONBody
 
 // Bind implements render.Binder.
 func (CreateUserJSONRequestBody) Bind(*http.Request) error {
+	return nil
+}
+
+// UpdateUserJSONRequestBody defines body for UpdateUser for application/json ContentType.
+type UpdateUserJSONRequestBody UpdateUserJSONBody
+
+// Bind implements render.Binder.
+func (UpdateUserJSONRequestBody) Bind(*http.Request) error {
 	return nil
 }
 
@@ -180,7 +192,7 @@ func UploadFileJSONDefaultResponse(body Error) *Response {
 
 // CreateDisplayJSON200Response is a constructor method for a CreateDisplay response.
 // A *Response is returned with the configured status code and content type from the spec.
-func CreateDisplayJSON200Response(body Display) *Response {
+func CreateDisplayJSON200Response(body int64) *Response {
 	return &Response{
 		body:        body,
 		Code:        200,
@@ -318,6 +330,16 @@ func UpdateItemJSONDefaultResponse(body Error) *Response {
 	}
 }
 
+// CreateUserJSONDefaultResponse is a constructor method for a CreateUser response.
+// A *Response is returned with the configured status code and content type from the spec.
+func CreateUserJSONDefaultResponse(body Error) *Response {
+	return &Response{
+		body:        body,
+		Code:        200,
+		contentType: "application/json",
+	}
+}
+
 // GetUserJSON200Response is a constructor method for a GetUser response.
 // A *Response is returned with the configured status code and content type from the spec.
 func GetUserJSON200Response(body User) *Response {
@@ -358,26 +380,6 @@ func UpdateUserJSONDefaultResponse(body Error) *Response {
 	}
 }
 
-// CreateUserJSON200Response is a constructor method for a CreateUser response.
-// A *Response is returned with the configured status code and content type from the spec.
-func CreateUserJSON200Response(body User) *Response {
-	return &Response{
-		body:        body,
-		Code:        200,
-		contentType: "application/json",
-	}
-}
-
-// CreateUserJSONDefaultResponse is a constructor method for a CreateUser response.
-// A *Response is returned with the configured status code and content type from the spec.
-func CreateUserJSONDefaultResponse(body Error) *Response {
-	return &Response{
-		body:        body,
-		Code:        200,
-		contentType: "application/json",
-	}
-}
-
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// Upload file
@@ -385,7 +387,7 @@ type ServerInterface interface {
 	UploadFile(w http.ResponseWriter, r *http.Request) *Response
 	// Create display
 	// (POST /d)
-	CreateDisplay(w http.ResponseWriter, r *http.Request, params CreateDisplayParams) *Response
+	CreateDisplay(w http.ResponseWriter, r *http.Request) *Response
 	// Delete display
 	// (DELETE /d/{displayID})
 	DeleteDisplay(w http.ResponseWriter, r *http.Request, displayID int64) *Response
@@ -397,7 +399,7 @@ type ServerInterface interface {
 	UpdateDisplay(w http.ResponseWriter, r *http.Request, displayID int64) *Response
 	// Create Item
 	// (POST /i)
-	CreateItem(w http.ResponseWriter, r *http.Request, params CreateItemParams) *Response
+	CreateItem(w http.ResponseWriter, r *http.Request) *Response
 	// Delete item
 	// (DELETE /i/{itemID})
 	DeleteItem(w http.ResponseWriter, r *http.Request, itemID int64) *Response
@@ -407,15 +409,15 @@ type ServerInterface interface {
 	// Update item
 	// (PATCH /i/{itemID})
 	UpdateItem(w http.ResponseWriter, r *http.Request, itemID int64) *Response
+	// Create user
+	// (POST /u)
+	CreateUser(w http.ResponseWriter, r *http.Request) *Response
 	// Get user
-	// (GET /{username})
+	// (GET /u/{username})
 	GetUser(w http.ResponseWriter, r *http.Request, username string) *Response
 	// Update user
-	// (PATCH /{username})
+	// (PATCH /u/{username})
 	UpdateUser(w http.ResponseWriter, r *http.Request, username string) *Response
-	// Create user
-	// (POST /{username})
-	CreateUser(w http.ResponseWriter, r *http.Request, username string) *Response
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -447,19 +449,8 @@ func (siw *ServerInterfaceWrapper) UploadFile(w http.ResponseWriter, r *http.Req
 func (siw *ServerInterfaceWrapper) CreateDisplay(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	// Parameter object where we will unmarshal all parameters from the context
-	var params CreateDisplayParams
-
-	// ------------- Optional query parameter "display" -------------
-
-	if err := runtime.BindQueryParameter("form", true, false, "display", r.URL.Query(), &params.Display); err != nil {
-		err = fmt.Errorf("invalid format for parameter display: %w", err)
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "display"})
-		return
-	}
-
 	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp := siw.Handler.CreateDisplay(w, r, params)
+		resp := siw.Handler.CreateDisplay(w, r)
 		if resp != nil {
 			if resp.body != nil {
 				render.Render(w, r, resp)
@@ -554,19 +545,8 @@ func (siw *ServerInterfaceWrapper) UpdateDisplay(w http.ResponseWriter, r *http.
 func (siw *ServerInterfaceWrapper) CreateItem(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	// Parameter object where we will unmarshal all parameters from the context
-	var params CreateItemParams
-
-	// ------------- Optional query parameter "item" -------------
-
-	if err := runtime.BindQueryParameter("form", true, false, "item", r.URL.Query(), &params.Item); err != nil {
-		err = fmt.Errorf("invalid format for parameter item: %w", err)
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "item"})
-		return
-	}
-
 	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp := siw.Handler.CreateItem(w, r, params)
+		resp := siw.Handler.CreateItem(w, r)
 		if resp != nil {
 			if resp.body != nil {
 				render.Render(w, r, resp)
@@ -657,6 +637,24 @@ func (siw *ServerInterfaceWrapper) UpdateItem(w http.ResponseWriter, r *http.Req
 	handler(w, r.WithContext(ctx))
 }
 
+// CreateUser operation middleware
+func (siw *ServerInterfaceWrapper) CreateUser(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		resp := siw.Handler.CreateUser(w, r)
+		if resp != nil {
+			if resp.body != nil {
+				render.Render(w, r, resp)
+			} else {
+				w.WriteHeader(resp.Code)
+			}
+		}
+	})
+
+	handler(w, r.WithContext(ctx))
+}
+
 // GetUser operation middleware
 func (siw *ServerInterfaceWrapper) GetUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -697,32 +695,6 @@ func (siw *ServerInterfaceWrapper) UpdateUser(w http.ResponseWriter, r *http.Req
 
 	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		resp := siw.Handler.UpdateUser(w, r, username)
-		if resp != nil {
-			if resp.body != nil {
-				render.Render(w, r, resp)
-			} else {
-				w.WriteHeader(resp.Code)
-			}
-		}
-	})
-
-	handler(w, r.WithContext(ctx))
-}
-
-// CreateUser operation middleware
-func (siw *ServerInterfaceWrapper) CreateUser(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	// ------------- Path parameter "username" -------------
-	var username string
-
-	if err := runtime.BindStyledParameter("simple", false, "username", chi.URLParam(r, "username"), &username); err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "username"})
-		return
-	}
-
-	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp := siw.Handler.CreateUser(w, r, username)
 		if resp != nil {
 			if resp.body != nil {
 				render.Render(w, r, resp)
@@ -862,9 +834,9 @@ func Handler(si ServerInterface, opts ...ServerOption) http.Handler {
 		r.Delete("/i/{itemID}", wrapper.DeleteItem)
 		r.Get("/i/{itemID}", wrapper.GetItem)
 		r.Patch("/i/{itemID}", wrapper.UpdateItem)
-		r.Get("/{username}", wrapper.GetUser)
-		r.Patch("/{username}", wrapper.UpdateUser)
-		r.Post("/{username}", wrapper.CreateUser)
+		r.Post("/u", wrapper.CreateUser)
+		r.Get("/u/{username}", wrapper.GetUser)
+		r.Patch("/u/{username}", wrapper.UpdateUser)
 
 	})
 	return r
@@ -903,23 +875,23 @@ func WithErrorHandler(handler func(w http.ResponseWriter, r *http.Request, err e
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/+xYW2/bNhT+K8LZHjXLS4I96G2t18JosAXZ/FQEAyMeWWwlkSWPgniG//tAUpfYlly7",
-	"SR1n2ZvE27l83zmfxCUkslCyxJIMxEswSYYFc48TYVTOFvaRcS5IyJLlV1oq1CTQQJyy3GAI6sHQEjia",
-	"RAtlV9tXWiiEGAxpUc5hFYLgdjiVumAEMYiSfrmAsFknSsI5areQsJhO3Jn20ey5rR5hWrOFfVeZJDm7",
-	"vux1hgTl2DtTGdQlK/omOyPy9hMmZJf/prXUB2YqkRw3gzo/6w2qQGPYfMAZjV8qoZFD/NGf2a2/6XF1",
-	"SlgciqlnwnSyJwZ4TzZ7+aUoPz+OBDvRMzIRLL+ShgYNHQjjTOWS8YNxrAuo14NU5Oso34qS6UUX7SCS",
-	"zan1GX1Yzgzqb8Xy0ZWVDiQ2hHxwZg88LZbrvm2X7YYnB6FsDWFSaUGLP22z82lhSvz9GV2zEyXEkCHj",
-	"qCEEf2473xlX4gMuYGXPE2Uqt3of/JUJEwgTUIaBqm5zkQS/Xk2DVOrgHUsYxxG0HQj8CIRwh9r4/ePR",
-	"ePSzDU8qLJkSEMP5aDyyHUIxypzbETMGfedW0jgGWrCZdWHKIa4Z/c4SyPMLDb2RfOGJW1JN26LKSSim",
-	"KbJE+IkzYp0a2KcfNaYQww9RJxdRrRVRXTWrdQqTrtANGCVL47N8Nh5vGGZK5SJx/kafjNeMzup6QmfX",
-	"ly57orC9bbuAVuHGhj8+gBtLWZXTQYZ3het7fY+5WYn3ChNCHjRrQjBVUdh6b6AIXDHbmYgPw/ZWIyNs",
-	"FNgCrlmBhNpA/HEJeK9ypx42yaFn7JcKXVupCcvbvftF1diyLtPCcdJSAVY3j8RwL6ND2F14Y+tTbxgP",
-	"rj2VTwlfj1nA25gsxNGybbgrH0mOhNuAT9z4IOAOYVv1WwBPJ7BZdQ8h/2pf78H3Yjvlv8vgbZ3bE8q4",
-	"T1qX8RDm2FNM75FOI7FHLJxTgeg90kN8FKMk61Mpzp6R/UOq+ET4PK0m/ido4QFf75Xia3Lo/ly+RQuF",
-	"37hfSM7KUVXQWzx1yGp5q521eEVL/4++h7D1Q9dT1/7E79N5Tzm7tZSJmnxDOnYSeXxFpLfy1WCyU7ue",
-	"AZinV60Ok+NJ1svgQa1Xom1+y+bOwTW/oXJ19zP7sKK9wdjFi4LdX2I5pwzis3EIhSib1/Ptn+HvWbsu",
-	"rBdRu5Wp7xF31e5zo/T0hdwBdLxCfhmkqAu55cWOz83/afF6aFF/3Fatswb1XQN5pXOIISNSJo6i1N/d",
-	"Jkwr5Ij/jISM7sawuln9GwAA//+FJt/YTBsAAA==",
+	"H4sIAAAAAAAC/+xYUW/bNhD+K8Jtj5rlNcEe9LY2a2E02IJseSqCgRFPFltJ5MhTEM/wfx9ISpZlSbHd",
+	"wo227ikSSR2P3/fddzHXkMhCyRJLMhCvwSQZFsw9Xgmjcrayj4xzQUKWLL/RUqEmgQbilOUGQ1A7Q2vg",
+	"aBItlF1tX2mlEGIwpEW5hE0IgtvhVOqCEcQgSvrpEsJmnSgJl6jdQsJiceVi2kdz5Gf1CNOarey7yiTJ",
+	"u9vrwWRIUI6DM5VBXbJiaHITgsa/KqGRQ/zBHmhneRMz7ACxk0Z7sPttsvLhIyZkt/1Fa6lPRDyRHPfB",
+	"uXg1CE6BxrDlEYdyMdv1Q6kuCItTteEVtbg6kkt8Igtrfi3KT18mpmdVYGQiWH4jDY1udKIcOon3Nuio",
+	"YUc5LTxDeN+pXDJ+sjbq4h48VSryrnIeRMn0qkVwVB1N1DrGYL4G9efq44urPh0hK4R8dOYIjVj6urn1",
+	"LWUvk+OVs6OEtP6b7yvDdMWzm1WfA5s2JpUWtPrd2roHmSnx5yd0ti5KiCFDxlFDCD7L7Xx7FCXe4wo2",
+	"Np4oU9lzefgjEyYQJqAMA1U95CIJfr5ZBKnUwVuWMI6zrS/G4EcghEfUxn8/n81nP1qwpMKSKQExXMzm",
+	"M+thilHm0o6YMeh7lJLG6dlKh9kUFhziuj7eCme+Flc09FrylS+DkuoiKKqchGKaIiurHzgj1vY9+/S9",
+	"xhRi+C5qG2NUd8WorsFNlzrSFboBo2RpPMqv5vO9jZlSuUhcvtFH47tju2sX0Lvba4eeKKz79stxE+59",
+	"8Nt7cGMpq3I6aePnjuu70cB2dyU+KUwIedCsCcFURWHdo6EicNZgZyI+TtsbjYyw+V/jOeY+/xxN9DPw",
+	"dtCbxri69Bt1p14zHtx6AKbEp+co4FsYLaXReutKG3+SHAn7BF+58ZZgxTQrkFAbiD/UHmSrvHWgtg/u",
+	"sxWehPx9j9vLPuS/yuBNje2EEPegtYiHsMSB4nmHNA1g5+ep1Smb3DukXX4UoyQb6kqcvaD6/1Ve+p+Q",
+	"hSe865XiUPtzv6XOw5cL/ZXJavecMlN1V6uTtTRFa//b/Ih+VjN2uJx9xPMY7pTRrTuYcOiOt69J4PgN",
+	"id52rYaTZ1vWCxDzv/l99TYltuZXHepR7j7nPDS50EfRdDl126ubSuVPZHGN1s3FjmsrY0ZYw3u43nau",
+	"icYrrmBP11guKYP41TyEQpTN60X/NuGcrthSO3VX9JQdcMWXZukla+9bE0VtkdU2WYP6saG80jnEkBEp",
+	"E0dR6m85E6YVcsS/Z0JGj3PY3G/+CQAA//+DeuvgYBsAAA==",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
