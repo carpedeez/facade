@@ -40,7 +40,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/PostUser'
       responses:
         '204':
           description: OK
@@ -68,7 +68,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/GetUser'
         default:
           description: Unexpected Error
           content:
@@ -91,14 +91,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/PatchUser'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/GetUser'
         default:
           description: Unexpected Error
           content:
@@ -112,7 +112,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Display'
+              $ref: '#/components/schemas/PostDisplay'
       summary: Create display
       operationId: createDisplay
       responses:
@@ -148,7 +148,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Display'
+                $ref: '#/components/schemas/GetDisplay'
         default:
           description: Unexpected Error
           content:
@@ -170,14 +170,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Display'
+              $ref: '#/components/schemas/PatchDisplay'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Display'
+                $ref: '#/components/schemas/GetDisplay'
         default:
           description: Unexpected Error
           content:
@@ -212,14 +212,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Item'
+              $ref: '#/components/schemas/PostItem'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Item'
+                $ref: '#/components/schemas/GetItem'
         default:
           description: Unexpected Error
           content:
@@ -243,7 +243,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Item'
+                $ref: '#/components/schemas/GetItem'
         default:
           description: Unexpected Error
           content:
@@ -265,14 +265,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Item'
+              $ref: '#/components/schemas/PatchItem'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Item'
+                $ref: '#/components/schemas/GetItem'
         default:
           description: Unexpected Error
           content:
@@ -307,27 +307,31 @@ components:
       type: object
       additionalProperties: false
       properties:
-        component:
+        component: # avatar, display photo, item photo, etc. create enum for this when known
           type: string
         file:
           type: string
           format: binary
-    User:
+    GetUser:
+      type: object
       required:
+        - id
         - username
-        - fname
-        - lname
+        - firstName
+        - lastName
         - displayIDs
         - photoURL
         - socialLinks
-      type: object
       additionalProperties: false
       properties:
+        id:
+          type: integer
+          format: int64
         username:
           type: string
-        fname:
+        firstName:
           type: string
-        lname:
+        lastName:
           type: string
         displayIDs:
           type: array
@@ -340,7 +344,37 @@ components:
           type: array
           items: 
             type: string
-    Display:
+    PostUser:
+      description: registration
+      type: object
+      required:
+        - username
+        - firstName
+        - lastName
+      additionalProperties: false
+      properties:
+        username:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+    PatchUser:
+      type: object
+      additionalProperties: false
+      properties:
+        username:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        socialLinks:
+          type: array
+          items: 
+            type: string
+    GetDisplay:
+      type: object
       required:
         - id
         - username
@@ -348,7 +382,6 @@ components:
         - description
         - photoURL
         - itemIDs
-      type: object
       additionalProperties: false
       properties:
         id:
@@ -367,7 +400,27 @@ components:
           items: 
             type: integer
             format: int64
-    Item:
+    PostDisplay:
+      type: object
+      required:
+        - title
+        - description
+      additionalProperties: false
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+    PatchDisplay:
+      type: object
+      additionalProperties: false
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+    GetItem:
+      type: object
       required:
         - id
         - externalLink
@@ -375,7 +428,6 @@ components:
         - photoURL
         - username
         - displayID
-      type: object
       additionalProperties: false
       properties:
         id: 
@@ -392,6 +444,27 @@ components:
         displayID:
           type: integer
           format: int64
+    PostItem:
+      type: object
+      required:
+        - externalLink
+        - socialPostLink
+      additionalProperties: false
+      properties:
+        externalLink:
+          type: string
+        socialPostLink:
+          type: string
+    PatchItem:
+      type: object
+      additionalProperties: false
+      properties:
+        externalLink:
+          type: string
+        socialPostLink:
+          type: string
+        photoURL:
+          type: string
     Error:
       type: object
       required:

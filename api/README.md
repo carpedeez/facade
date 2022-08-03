@@ -71,15 +71,8 @@ This operation does not require authentication
 ```json
 {
   "username": "string",
-  "fname": "string",
-  "lname": "string",
-  "displayIDs": [
-    0
-  ],
-  "photoURL": "string",
-  "socialLinks": [
-    "string"
-  ]
+  "firstName": "string",
+  "lastName": "string"
 }
 ```
 
@@ -87,7 +80,7 @@ This operation does not require authentication
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|body|body|[User](#schemauser)|true|none|
+|body|body|[PostUser](#schemapostuser)|true|none|
 
 > Example responses
 
@@ -131,9 +124,10 @@ This operation does not require authentication
 
 ```json
 {
+  "id": 0,
   "username": "string",
-  "fname": "string",
-  "lname": "string",
+  "firstName": "string",
+  "lastName": "string",
   "displayIDs": [
     0
   ],
@@ -148,7 +142,7 @@ This operation does not require authentication
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[User](#schemauser)|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[GetUser](#schemagetuser)|
 |default|Default|Unexpected Error|[Error](#schemaerror)|
 
 <aside class="success">
@@ -168,12 +162,8 @@ This operation does not require authentication
 ```json
 {
   "username": "string",
-  "fname": "string",
-  "lname": "string",
-  "displayIDs": [
-    0
-  ],
-  "photoURL": "string",
+  "firstName": "string",
+  "lastName": "string",
   "socialLinks": [
     "string"
   ]
@@ -185,7 +175,7 @@ This operation does not require authentication
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
 |username|path|string|true|none|
-|body|body|[User](#schemauser)|true|none|
+|body|body|[PatchUser](#schemapatchuser)|true|none|
 
 > Example responses
 
@@ -193,9 +183,10 @@ This operation does not require authentication
 
 ```json
 {
+  "id": 0,
   "username": "string",
-  "fname": "string",
-  "lname": "string",
+  "firstName": "string",
+  "lastName": "string",
   "displayIDs": [
     0
   ],
@@ -210,7 +201,7 @@ This operation does not require authentication
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[User](#schemauser)|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[GetUser](#schemagetuser)|
 |default|Default|Unexpected Error|[Error](#schemaerror)|
 
 <aside class="success">
@@ -229,14 +220,8 @@ This operation does not require authentication
 
 ```json
 {
-  "id": 0,
-  "username": "string",
   "title": "string",
-  "description": "string",
-  "photoURL": "string",
-  "itemIDs": [
-    0
-  ]
+  "description": "string"
 }
 ```
 
@@ -244,7 +229,7 @@ This operation does not require authentication
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|body|body|[Display](#schemadisplay)|true|none|
+|body|body|[PostDisplay](#schemapostdisplay)|true|none|
 
 > Example responses
 
@@ -301,7 +286,7 @@ This operation does not require authentication
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[Display](#schemadisplay)|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[GetDisplay](#schemagetdisplay)|
 |default|Default|Unexpected Error|[Error](#schemaerror)|
 
 <aside class="success">
@@ -320,14 +305,8 @@ This operation does not require authentication
 
 ```json
 {
-  "id": 0,
-  "username": "string",
   "title": "string",
-  "description": "string",
-  "photoURL": "string",
-  "itemIDs": [
-    0
-  ]
+  "description": "string"
 }
 ```
 
@@ -336,7 +315,7 @@ This operation does not require authentication
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
 |displayID|path|integer(int64)|true|none|
-|body|body|[Display](#schemadisplay)|true|none|
+|body|body|[PatchDisplay](#schemapatchdisplay)|true|none|
 
 > Example responses
 
@@ -359,7 +338,7 @@ This operation does not require authentication
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[Display](#schemadisplay)|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[GetDisplay](#schemagetdisplay)|
 |default|Default|Unexpected Error|[Error](#schemaerror)|
 
 <aside class="success">
@@ -414,12 +393,8 @@ This operation does not require authentication
 
 ```json
 {
-  "id": 0,
   "externalLink": "string",
-  "socialPostLink": "string",
-  "photoURL": "string",
-  "username": "string",
-  "displayID": 0
+  "socialPostLink": "string"
 }
 ```
 
@@ -427,7 +402,7 @@ This operation does not require authentication
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|body|body|[Item](#schemaitem)|true|none|
+|body|body|[PostItem](#schemapostitem)|true|none|
 
 > Example responses
 
@@ -448,7 +423,7 @@ This operation does not require authentication
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[Item](#schemaitem)|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[GetItem](#schemagetitem)|
 |default|Default|Unexpected Error|[Error](#schemaerror)|
 
 <aside class="success">
@@ -488,7 +463,7 @@ This operation does not require authentication
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[Item](#schemaitem)|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[GetItem](#schemagetitem)|
 |default|Default|Unexpected Error|[Error](#schemaerror)|
 
 <aside class="success">
@@ -507,12 +482,9 @@ This operation does not require authentication
 
 ```json
 {
-  "id": 0,
   "externalLink": "string",
   "socialPostLink": "string",
-  "photoURL": "string",
-  "username": "string",
-  "displayID": 0
+  "photoURL": "string"
 }
 ```
 
@@ -521,7 +493,7 @@ This operation does not require authentication
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
 |itemID|path|integer(int64)|true|none|
-|body|body|[Item](#schemaitem)|true|none|
+|body|body|[PatchItem](#schemapatchitem)|true|none|
 
 > Example responses
 
@@ -542,7 +514,7 @@ This operation does not require authentication
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[Item](#schemaitem)|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[GetItem](#schemagetitem)|
 |default|Default|Unexpected Error|[Error](#schemaerror)|
 
 <aside class="success">
@@ -609,18 +581,19 @@ This operation does not require authentication
 |component|string|true|none|none|
 |file|string(binary)|true|none|none|
 
-<h2 id="tocS_User">User</h2>
+<h2 id="tocS_GetUser">GetUser</h2>
 <!-- backwards compatibility -->
-<a id="schemauser"></a>
-<a id="schema_User"></a>
-<a id="tocSuser"></a>
-<a id="tocsuser"></a>
+<a id="schemagetuser"></a>
+<a id="schema_GetUser"></a>
+<a id="tocSgetuser"></a>
+<a id="tocsgetuser"></a>
 
 ```json
 {
+  "id": 0,
   "username": "string",
-  "fname": "string",
-  "lname": "string",
+  "firstName": "string",
+  "lastName": "string",
   "displayIDs": [
     0
   ],
@@ -636,19 +609,74 @@ This operation does not require authentication
 
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
+|id|integer(int64)|true|none|none|
 |username|string|true|none|none|
-|fname|string|true|none|none|
-|lname|string|true|none|none|
+|firstName|string|true|none|none|
+|lastName|string|true|none|none|
 |displayIDs|[integer]|true|none|none|
 |photoURL|string|true|none|none|
 |socialLinks|[string]|true|none|none|
 
-<h2 id="tocS_Display">Display</h2>
+<h2 id="tocS_PostUser">PostUser</h2>
 <!-- backwards compatibility -->
-<a id="schemadisplay"></a>
-<a id="schema_Display"></a>
-<a id="tocSdisplay"></a>
-<a id="tocsdisplay"></a>
+<a id="schemapostuser"></a>
+<a id="schema_PostUser"></a>
+<a id="tocSpostuser"></a>
+<a id="tocspostuser"></a>
+
+```json
+{
+  "username": "string",
+  "firstName": "string",
+  "lastName": "string"
+}
+
+```
+
+registration
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|username|string|true|none|none|
+|firstName|string|true|none|none|
+|lastName|string|true|none|none|
+
+<h2 id="tocS_PatchUser">PatchUser</h2>
+<!-- backwards compatibility -->
+<a id="schemapatchuser"></a>
+<a id="schema_PatchUser"></a>
+<a id="tocSpatchuser"></a>
+<a id="tocspatchuser"></a>
+
+```json
+{
+  "username": "string",
+  "firstName": "string",
+  "lastName": "string",
+  "socialLinks": [
+    "string"
+  ]
+}
+
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|username|string|false|none|none|
+|firstName|string|false|none|none|
+|lastName|string|false|none|none|
+|socialLinks|[string]|false|none|none|
+
+<h2 id="tocS_GetDisplay">GetDisplay</h2>
+<!-- backwards compatibility -->
+<a id="schemagetdisplay"></a>
+<a id="schema_GetDisplay"></a>
+<a id="tocSgetdisplay"></a>
+<a id="tocsgetdisplay"></a>
 
 ```json
 {
@@ -675,12 +703,56 @@ This operation does not require authentication
 |photoURL|string|true|none|none|
 |itemIDs|[integer]|true|none|none|
 
-<h2 id="tocS_Item">Item</h2>
+<h2 id="tocS_PostDisplay">PostDisplay</h2>
 <!-- backwards compatibility -->
-<a id="schemaitem"></a>
-<a id="schema_Item"></a>
-<a id="tocSitem"></a>
-<a id="tocsitem"></a>
+<a id="schemapostdisplay"></a>
+<a id="schema_PostDisplay"></a>
+<a id="tocSpostdisplay"></a>
+<a id="tocspostdisplay"></a>
+
+```json
+{
+  "title": "string",
+  "description": "string"
+}
+
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|title|string|true|none|none|
+|description|string|true|none|none|
+
+<h2 id="tocS_PatchDisplay">PatchDisplay</h2>
+<!-- backwards compatibility -->
+<a id="schemapatchdisplay"></a>
+<a id="schema_PatchDisplay"></a>
+<a id="tocSpatchdisplay"></a>
+<a id="tocspatchdisplay"></a>
+
+```json
+{
+  "title": "string",
+  "description": "string"
+}
+
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|title|string|false|none|none|
+|description|string|false|none|none|
+
+<h2 id="tocS_GetItem">GetItem</h2>
+<!-- backwards compatibility -->
+<a id="schemagetitem"></a>
+<a id="schema_GetItem"></a>
+<a id="tocSgetitem"></a>
+<a id="tocsgetitem"></a>
 
 ```json
 {
@@ -704,6 +776,52 @@ This operation does not require authentication
 |photoURL|string|true|none|none|
 |username|string|true|none|none|
 |displayID|integer(int64)|true|none|none|
+
+<h2 id="tocS_PostItem">PostItem</h2>
+<!-- backwards compatibility -->
+<a id="schemapostitem"></a>
+<a id="schema_PostItem"></a>
+<a id="tocSpostitem"></a>
+<a id="tocspostitem"></a>
+
+```json
+{
+  "externalLink": "string",
+  "socialPostLink": "string"
+}
+
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|externalLink|string|true|none|none|
+|socialPostLink|string|true|none|none|
+
+<h2 id="tocS_PatchItem">PatchItem</h2>
+<!-- backwards compatibility -->
+<a id="schemapatchitem"></a>
+<a id="schema_PatchItem"></a>
+<a id="tocSpatchitem"></a>
+<a id="tocspatchitem"></a>
+
+```json
+{
+  "externalLink": "string",
+  "socialPostLink": "string",
+  "photoURL": "string"
+}
+
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|externalLink|string|false|none|none|
+|socialPostLink|string|false|none|none|
+|photoURL|string|false|none|none|
 
 <h2 id="tocS_Error">Error</h2>
 <!-- backwards compatibility -->
