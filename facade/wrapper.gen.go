@@ -21,8 +21,14 @@ import (
 	"github.com/go-chi/render"
 )
 
-// Display defines model for Display.
-type Display struct {
+// Error defines model for Error.
+type Error struct {
+	Code    int32  `json:"code"`
+	Message string `json:"message"`
+}
+
+// GetDisplay defines model for GetDisplay.
+type GetDisplay struct {
 	Description string  `json:"description"`
 	ID          int64   `json:"id"`
 	ItemIDS     []int64 `json:"itemIDs"`
@@ -31,14 +37,8 @@ type Display struct {
 	Username    string  `json:"username"`
 }
 
-// Error defines model for Error.
-type Error struct {
-	Code    int32  `json:"code"`
-	Message string `json:"message"`
-}
-
-// Item defines model for Item.
-type Item struct {
+// GetItem defines model for GetItem.
+type GetItem struct {
 	DisplayID      int64  `json:"displayID"`
 	ExternalLink   string `json:"externalLink"`
 	ID             int64  `json:"id"`
@@ -47,39 +47,80 @@ type Item struct {
 	Username       string `json:"username"`
 }
 
+// GetUser defines model for GetUser.
+type GetUser struct {
+	DisplayIDS  []int64  `json:"displayIDs"`
+	FirstName   string   `json:"firstName"`
+	ID          int64    `json:"id"`
+	LastName    string   `json:"lastName"`
+	PhotoURL    string   `json:"photoURL"`
+	SocialLinks []string `json:"socialLinks"`
+	Username    string   `json:"username"`
+}
+
+// PatchDisplay defines model for PatchDisplay.
+type PatchDisplay struct {
+	Description *string `json:"description,omitempty"`
+	Title       *string `json:"title,omitempty"`
+}
+
+// PatchItem defines model for PatchItem.
+type PatchItem struct {
+	ExternalLink   *string `json:"externalLink,omitempty"`
+	PhotoURL       *string `json:"photoURL,omitempty"`
+	SocialPostLink *string `json:"socialPostLink,omitempty"`
+}
+
+// PatchUser defines model for PatchUser.
+type PatchUser struct {
+	FirstName   *string  `json:"firstName,omitempty"`
+	LastName    *string  `json:"lastName,omitempty"`
+	SocialLinks []string `json:"socialLinks,omitempty"`
+	Username    *string  `json:"username,omitempty"`
+}
+
+// PostDisplay defines model for PostDisplay.
+type PostDisplay struct {
+	Description string `json:"description"`
+	Title       string `json:"title"`
+}
+
+// PostItem defines model for PostItem.
+type PostItem struct {
+	ExternalLink   string `json:"externalLink"`
+	SocialPostLink string `json:"socialPostLink"`
+}
+
+// registration
+type PostUser struct {
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+	Username  string `json:"username"`
+}
+
 // Upload defines model for Upload.
 type Upload struct {
 	Component string `json:"component"`
 	File      string `json:"file"`
 }
 
-// User defines model for User.
-type User struct {
-	DisplayIDS  []int64  `json:"displayIDs"`
-	Fname       string   `json:"fname"`
-	Lname       string   `json:"lname"`
-	PhotoURL    string   `json:"photoURL"`
-	SocialLinks []string `json:"socialLinks"`
-	Username    string   `json:"username"`
-}
-
 // CreateDisplayJSONBody defines parameters for CreateDisplay.
-type CreateDisplayJSONBody Display
+type CreateDisplayJSONBody PostDisplay
 
 // UpdateDisplayJSONBody defines parameters for UpdateDisplay.
-type UpdateDisplayJSONBody Display
+type UpdateDisplayJSONBody PatchDisplay
 
 // CreateItemJSONBody defines parameters for CreateItem.
-type CreateItemJSONBody Item
+type CreateItemJSONBody PostItem
 
 // UpdateItemJSONBody defines parameters for UpdateItem.
-type UpdateItemJSONBody Item
+type UpdateItemJSONBody PatchItem
 
 // CreateUserJSONBody defines parameters for CreateUser.
-type CreateUserJSONBody User
+type CreateUserJSONBody PostUser
 
 // UpdateUserJSONBody defines parameters for UpdateUser.
-type UpdateUserJSONBody User
+type UpdateUserJSONBody PatchUser
 
 // CreateDisplayJSONRequestBody defines body for CreateDisplay for application/json ContentType.
 type CreateDisplayJSONRequestBody CreateDisplayJSONBody
@@ -222,7 +263,7 @@ func DeleteDisplayJSONDefaultResponse(body Error) *Response {
 
 // GetDisplayJSON200Response is a constructor method for a GetDisplay response.
 // A *Response is returned with the configured status code and content type from the spec.
-func GetDisplayJSON200Response(body Display) *Response {
+func GetDisplayJSON200Response(body GetDisplay) *Response {
 	return &Response{
 		body:        body,
 		Code:        200,
@@ -242,7 +283,7 @@ func GetDisplayJSONDefaultResponse(body Error) *Response {
 
 // UpdateDisplayJSON200Response is a constructor method for a UpdateDisplay response.
 // A *Response is returned with the configured status code and content type from the spec.
-func UpdateDisplayJSON200Response(body Display) *Response {
+func UpdateDisplayJSON200Response(body GetDisplay) *Response {
 	return &Response{
 		body:        body,
 		Code:        200,
@@ -262,7 +303,7 @@ func UpdateDisplayJSONDefaultResponse(body Error) *Response {
 
 // CreateItemJSON200Response is a constructor method for a CreateItem response.
 // A *Response is returned with the configured status code and content type from the spec.
-func CreateItemJSON200Response(body Item) *Response {
+func CreateItemJSON200Response(body GetItem) *Response {
 	return &Response{
 		body:        body,
 		Code:        200,
@@ -292,7 +333,7 @@ func DeleteItemJSONDefaultResponse(body Error) *Response {
 
 // GetItemJSON200Response is a constructor method for a GetItem response.
 // A *Response is returned with the configured status code and content type from the spec.
-func GetItemJSON200Response(body Item) *Response {
+func GetItemJSON200Response(body GetItem) *Response {
 	return &Response{
 		body:        body,
 		Code:        200,
@@ -312,7 +353,7 @@ func GetItemJSONDefaultResponse(body Error) *Response {
 
 // UpdateItemJSON200Response is a constructor method for a UpdateItem response.
 // A *Response is returned with the configured status code and content type from the spec.
-func UpdateItemJSON200Response(body Item) *Response {
+func UpdateItemJSON200Response(body GetItem) *Response {
 	return &Response{
 		body:        body,
 		Code:        200,
@@ -342,7 +383,7 @@ func CreateUserJSONDefaultResponse(body Error) *Response {
 
 // GetUserJSON200Response is a constructor method for a GetUser response.
 // A *Response is returned with the configured status code and content type from the spec.
-func GetUserJSON200Response(body User) *Response {
+func GetUserJSON200Response(body GetUser) *Response {
 	return &Response{
 		body:        body,
 		Code:        200,
@@ -362,7 +403,7 @@ func GetUserJSONDefaultResponse(body Error) *Response {
 
 // UpdateUserJSON200Response is a constructor method for a UpdateUser response.
 // A *Response is returned with the configured status code and content type from the spec.
-func UpdateUserJSON200Response(body User) *Response {
+func UpdateUserJSON200Response(body GetUser) *Response {
 	return &Response{
 		body:        body,
 		Code:        200,
@@ -875,23 +916,25 @@ func WithErrorHandler(handler func(w http.ResponseWriter, r *http.Request, err e
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
+	"4HEOxX3xbwAAAP//GVsglzIgAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
