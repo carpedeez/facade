@@ -24,9 +24,9 @@ CREATE TABLE items
 (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT REFERENCES users(id),
-    display_id INTEGER REFERENCES displays(id)
+    display_id INTEGER REFERENCES displays(id),
 
     external_link VARCHAR NOT NULL,
     social_post_link VARCHAR NOT NULL,
-    photo_url VARCHAR NOT NULL,
+    photo_url VARCHAR NOT NULL
 );
