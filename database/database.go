@@ -9,7 +9,7 @@ import (
 	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
-func Open(ctx context.Context, c config.DBConfig) (*sql.DB, error) {
+func OpenPostgres(ctx context.Context, c config.DBConfig) (Querier, error) {
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		c.Host, c.Port, c.Username, c.Password, c.Database)
 	db, err := sql.Open("pgx", dsn)
@@ -20,5 +20,7 @@ func Open(ctx context.Context, c config.DBConfig) (*sql.DB, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to ping database connection: %v", err)
 	}
-	return db, nil
+
+	q := querierImpl{DB: db}
+	return q, nil
 }
