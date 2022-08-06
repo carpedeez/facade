@@ -10,12 +10,80 @@ Base URLs:
 
 * <a href="https://facade.carpedeez.io/v0">https://facade.carpedeez.io/v0</a>
 
-# Authentication
-
-* API Key (api_key)
-    - Parameter Name: **api_key**, in: header. 
-
 <h1 id="facade-default">Default</h1>
+
+## me
+
+<a id="opIdme"></a>
+
+`GET /@me`
+
+*Get Session*
+
+> Example responses
+
+> 200 Response
+
+```json
+{
+  "id": "string",
+  "active": true,
+  "expires_at": "string",
+  "authenticated_at": "string",
+  "authenticator_assurance_level": "string",
+  "authentication_methods": [
+    {
+      "method": "string",
+      "completed_at": "string"
+    }
+  ],
+  "issued_at": "string",
+  "identity": {
+    "id": "string",
+    "schema_id": "string",
+    "schema_url": "string",
+    "state": "string",
+    "state_changed_at": "string",
+    "traits": {
+      "website": "string",
+      "email": "string"
+    },
+    "verifiable_addresses": [
+      {
+        "id": "string",
+        "value": "string",
+        "verified": true,
+        "via": "string",
+        "status": "string",
+        "created_at": "string",
+        "updated_at": "string"
+      }
+    ],
+    "recovery_addresses": [
+      {
+        "id": "string",
+        "value": "string",
+        "via": "string",
+        "created_at": "string",
+        "updated_at": "string"
+      }
+    ],
+    "created_at": "string",
+    "updated_at": "string"
+  }
+}
+```
+
+<h3 id="me-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[Session](#schemasession)|
+|default|Default|Unexpected Error|[Error](#schemaerror)|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
 
 ## uploadFile
 
@@ -558,6 +626,103 @@ This operation does not require authentication
 </aside>
 
 # Schemas
+
+<h2 id="tocS_Session">Session</h2>
+<!-- backwards compatibility -->
+<a id="schemasession"></a>
+<a id="schema_Session"></a>
+<a id="tocSsession"></a>
+<a id="tocssession"></a>
+
+```json
+{
+  "id": "string",
+  "active": true,
+  "expires_at": "string",
+  "authenticated_at": "string",
+  "authenticator_assurance_level": "string",
+  "authentication_methods": [
+    {
+      "method": "string",
+      "completed_at": "string"
+    }
+  ],
+  "issued_at": "string",
+  "identity": {
+    "id": "string",
+    "schema_id": "string",
+    "schema_url": "string",
+    "state": "string",
+    "state_changed_at": "string",
+    "traits": {
+      "website": "string",
+      "email": "string"
+    },
+    "verifiable_addresses": [
+      {
+        "id": "string",
+        "value": "string",
+        "verified": true,
+        "via": "string",
+        "status": "string",
+        "created_at": "string",
+        "updated_at": "string"
+      }
+    ],
+    "recovery_addresses": [
+      {
+        "id": "string",
+        "value": "string",
+        "via": "string",
+        "created_at": "string",
+        "updated_at": "string"
+      }
+    ],
+    "created_at": "string",
+    "updated_at": "string"
+  }
+}
+
+```
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|id|string|true|none|none|
+|active|boolean|true|none|none|
+|expires_at|string|true|none|none|
+|authenticated_at|string|true|none|none|
+|authenticator_assurance_level|string|true|none|none|
+|authentication_methods|[object]|true|none|none|
+|» method|string|true|none|none|
+|» completed_at|string|true|none|none|
+|issued_at|string|true|none|none|
+|identity|object|true|none|none|
+|» id|string|true|none|none|
+|» schema_id|string|true|none|none|
+|» schema_url|string|true|none|none|
+|» state|string|true|none|none|
+|» state_changed_at|string|true|none|none|
+|» traits|object|true|none|none|
+|»» website|string|true|none|none|
+|»» email|string|true|none|none|
+|» verifiable_addresses|[object]|true|none|none|
+|»» id|string|true|none|none|
+|»» value|string|true|none|none|
+|»» verified|boolean|true|none|none|
+|»» via|string|true|none|none|
+|»» status|string|true|none|none|
+|»» created_at|string|true|none|none|
+|»» updated_at|string|true|none|none|
+|» recovery_addresses|[object]|true|none|none|
+|»» id|string|true|none|none|
+|»» value|string|true|none|none|
+|»» via|string|true|none|none|
+|»» created_at|string|true|none|none|
+|»» updated_at|string|true|none|none|
+|» created_at|string|true|none|none|
+|» updated_at|string|true|none|none|
 
 <h2 id="tocS_Upload">Upload</h2>
 <!-- backwards compatibility -->

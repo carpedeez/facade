@@ -5,6 +5,38 @@ import (
 	"net/http"
 )
 
+// Get Session
+// (GET /@me)
+func (f facade) Me(w http.ResponseWriter, r *http.Request) *Response {
+	cookies := r.Header.Get("Cookie")
+
+	s, _, err := f.ory.V0alpha2Api.ToSession(r.Context()).Cookie(cookies).Execute()
+	if (err != nil && s == nil) || (err == nil && !*s.Active) {
+		return MeJSONDefaultResponse(Error{
+			Code:    http.StatusUnauthorized,
+			Message: "not logged in",
+		})
+	}
+
+	b, err := json.Marshal(s)
+	if err != nil {
+		return MeJSONDefaultResponse(Error{
+			Code:    http.StatusUnauthorized,
+			Message: "error marshalling session",
+		})
+	}
+
+	ss := Session{}
+	json.Unmarshal(b, &ss)
+	if err != nil {
+		return MeJSONDefaultResponse(Error{
+			Code:    http.StatusInternalServerError,
+			Message: "error unmarshalling session",
+		})
+	}
+	return MeJSON200Response(ss)
+}
+
 // Upload file
 // (POST /assets)
 func (f facade) UploadFile(w http.ResponseWriter, r *http.Request) *Response {

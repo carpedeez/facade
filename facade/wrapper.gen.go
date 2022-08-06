@@ -98,6 +98,49 @@ type PostUser struct {
 	Username  string `json:"username"`
 }
 
+// Session defines model for Session.
+type Session struct {
+	Active                bool   `json:"active"`
+	AuthenticatedAt       string `json:"authenticated_at"`
+	AuthenticationMethods []struct {
+		CompletedAt string `json:"completed_at"`
+		Method      string `json:"method"`
+	} `json:"authentication_methods"`
+	AuthenticatorAssuranceLevel string `json:"authenticator_assurance_level"`
+	ExpiresAt                   string `json:"expires_at"`
+	ID                          string `json:"id"`
+	Identity                    struct {
+		CreatedAt         string `json:"created_at"`
+		ID                string `json:"id"`
+		RecoveryAddresses []struct {
+			CreatedAt string `json:"created_at"`
+			ID        string `json:"id"`
+			UpdatedAt string `json:"updated_at"`
+			Value     string `json:"value"`
+			Via       string `json:"via"`
+		} `json:"recovery_addresses"`
+		SchemaID       string `json:"schema_id"`
+		SchemaURL      string `json:"schema_url"`
+		State          string `json:"state"`
+		StateChangedAt string `json:"state_changed_at"`
+		Traits         struct {
+			Email   string `json:"email"`
+			Website string `json:"website"`
+		} `json:"traits"`
+		UpdatedAt           string `json:"updated_at"`
+		VerifiableAddresses []struct {
+			CreatedAt string `json:"created_at"`
+			ID        string `json:"id"`
+			Status    string `json:"status"`
+			UpdatedAt string `json:"updated_at"`
+			Value     string `json:"value"`
+			Verified  bool   `json:"verified"`
+			Via       string `json:"via"`
+		} `json:"verifiable_addresses"`
+	} `json:"identity"`
+	IssuedAt string `json:"issued_at"`
+}
+
 // Upload defines model for Upload.
 type Upload struct {
 	Component string `json:"component"`
@@ -209,6 +252,26 @@ func (resp *Response) MarshalJSON() ([]byte, error) {
 // This is used to only marshal the body of the response.
 func (resp *Response) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	return e.Encode(resp.body)
+}
+
+// MeJSON200Response is a constructor method for a Me response.
+// A *Response is returned with the configured status code and content type from the spec.
+func MeJSON200Response(body Session) *Response {
+	return &Response{
+		body:        body,
+		Code:        200,
+		contentType: "application/json",
+	}
+}
+
+// MeJSONDefaultResponse is a constructor method for a Me response.
+// A *Response is returned with the configured status code and content type from the spec.
+func MeJSONDefaultResponse(body Error) *Response {
+	return &Response{
+		body:        body,
+		Code:        200,
+		contentType: "application/json",
+	}
 }
 
 // UploadFileJSON200Response is a constructor method for a UploadFile response.
@@ -423,6 +486,9 @@ func UpdateUserJSONDefaultResponse(body Error) *Response {
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// Get Session
+	// (GET /@me)
+	Me(w http.ResponseWriter, r *http.Request) *Response
 	// Upload file
 	// (POST /assets)
 	UploadFile(w http.ResponseWriter, r *http.Request) *Response
@@ -466,6 +532,24 @@ type ServerInterfaceWrapper struct {
 	Handler          ServerInterface
 	Middlewares      map[string]func(http.Handler) http.Handler
 	ErrorHandlerFunc func(w http.ResponseWriter, r *http.Request, err error)
+}
+
+// Me operation middleware
+func (siw *ServerInterfaceWrapper) Me(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		resp := siw.Handler.Me(w, r)
+		if resp != nil {
+			if resp.body != nil {
+				render.Render(w, r, resp)
+			} else {
+				w.WriteHeader(resp.Code)
+			}
+		}
+	})
+
+	handler(w, r.WithContext(ctx))
 }
 
 // UploadFile operation middleware
@@ -866,6 +950,7 @@ func Handler(si ServerInterface, opts ...ServerOption) http.Handler {
 	}
 
 	r.Route(options.BaseURL, func(r chi.Router) {
+		r.Get("/@me", wrapper.Me)
 		r.Post("/assets", wrapper.UploadFile)
 		r.Post("/d", wrapper.CreateDisplay)
 		r.Delete("/d/{displayID}", wrapper.DeleteDisplay)
@@ -916,25 +1001,29 @@ func WithErrorHandler(handler func(w http.ResponseWriter, r *http.Request, err e
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/+xYUW+jRhD+K2jaR2rcJOoDb71L7xRddI3S5ukUVRsY23sH7HZ3iOJG/Pdqd8GAARs7",
-	"x8Xq9cmw4NmZ75v5ZthniEQqRYYZaQifQUcrTJm9/E0pocwFi2NOXGQsuVFCoiKOGsIFSzT6IBtLxliM",
-	"5nchVMoIQuAZnZ+BD7SW6G5xiQoKH1LUmi3t2+VDTYpnSygKHxT+nXOFMYSfnM36/fuNMfHwGSMytt4j",
-	"XXItE7Y+0N8YdaS4NG/3OOIDj7ej+eWiNxpOmF5dWpvmUo/8W7nClGJrcy9XgsTd7XWvM8Qpwd4nuUaV",
-	"sXQEmDyGxuuVTb8FRMONOrAB2K8I00Mxd0xdXY7ECJ/IuJtc8+zLy0jaia4WEWfJjdA0uNGBMLcc72zQ",
-	"QrnBSA3PAOR3GtWxkL84QRdcafrYj8EBTCRsh5URNBkE27F0q2XL8+NrpI654bjfBLXFZdPDPgpvGEWr",
-	"aeRqSCGKITeOKN+95fiyKht09Yi0352sO3NwojTrhiY0ffNcaCZ7XwO4H3B0imwZkxBNf3eL6pDno5Kn",
-	"hSgoXHJNilUt8Wtl1ngd2idBfcHeyUSw+OCprRwBex1e8KQ90z3wjKl1reuDc1tltbTR9dfwj1GuOK3/",
-	"MIOnc4dJ/tcXtPXADRMrZDEq8MHBtnleF5/kH3ANhbHHs4XolAf8ueLa49qjFXoyf0h45P16c+UthPLe",
-	"sYjFONvMQiG4FfDhEZV2/5/P5rOfDRhCYsYkhxDOZ/OZmWwlo5V1O2Bao5uipdAWSwOyTaCrGMKSm3fc",
-	"1ptBCjW9EfHaUZBRSUCaJ8QlUxQYxH+KGbF6MjdXPypcQAg/BPXoHpRze1DyX7TJIJWjXdBSZNqhfDaf",
-	"b23MpEx4ZP0NPmsnK/WubUDvbq8tejw1M3k3FYrtcvr9A9i1BcsTOmjjXeG6b5Se7e4yfJIYEcZe9Y4P",
-	"Ok9Tk7kVFZ5NS/MkiIdpe6uQEVYivYu54+NotoEJuNs7kQ3xdeE2aj96w2Lv1oFwSpw6nrx4A6OhNXje",
-	"jGmFiyRBwi7Jl3a9JlkyxVIkVBrCT6UOmUqvVaie07fZ8g9C/r7D7UUX8o/Ce1tie0KIO9BqxH1YYk8B",
-	"Nb7OXxfY+VdDrBHSyWvde6QmRdIM033NKWavWAATSGrzM2sCTf2vpIcjvi2bfF83tF8C07VCa/7bc1Zv",
-	"e8qElX2udNawFTy7U7oRHa4kbn91O4vTSPApo1v2NG7RHW5oJ4Hj95X3po9VtOxsYq/AzUTt638d3N+4",
-	"+EYH831dy54CTde1rPlRbF2cugqWPSZ3ERlsg+fqOMp2mSFdLCHeX3uNw63h6kvZ0zVmS1pBeDb3IeVZ",
-	"dXvePXKYWCRrdk9dJB1re0TytYmaSDHH1+B3mBylYuYbZzWqx4r6XCUQwopI6jAIFu5UNGJKYoz4z4yL",
-	"4HEOxX3xbwAAAP//GVsglzIgAAA=",
+	"H4sIAAAAAAAC/+xaUXOjNhD+K4zaR2rcJNMHntq79DqZptdM2jzdZDxrtDa6AuIk4cb1+L93hMCALdnY",
+	"CRe3d0/BIFa73/ftLixZkYinOc8wU5KEKyKjGFMoD38Wggt9AJQyxXgGyZ3gOQrFUJJwBolEn+StU9oY",
+	"Rf13xkUKioSEZerygvhELXM0P3GOgqx9kqKUMC9XVxelEiybk/XaJwI/FUwgJeEHY7NZ/7gxxqcfMVLa",
+	"1i+orpnME1ge6S9FGQmW69UWR3zC6HY0P1xZo2EK05vr0qY+lD1vq86AELDUv/OYK/5wf2t1RjGVoPVK",
+	"IVFkkPYAk1HSWl7b9DtAtNxoAnPAfqMwPRZzw9TNdU+M8Elpd5Nblv31PJL2oit5xCC541I5NzoS5o7j",
+	"Oxt0UG4x0sDjgPxBojgV8mcLdMaEVO/tGBzBRAJ7rPSgSSPYjWU3W7Y8Pz1HmphbjvttUDtctj20UXgH",
+	"KoqHKVeuCrF2uXFC+h5Mx+dlmdPVE2S/X6x7NTiQzHZD41J9di20xW5rAI8OR4dQSx9BtP3dX1RdnvcS",
+	"TwdRInDOpBJQt8SXUlb/OnSoBNmC/QOlrBTR9RgixRbtTaecJwiZvgkKFWOmWAQK6USXbovfrUWMZ5MU",
+	"VcxpNzm2nwXTPME9Fo2JwzhU6/yuRVv028nY8pmLCUhZCMginCS4wMTqEz7lTKB0ucyo47TeRS0tIAjc",
+	"B6rDnsCIL1AsJ0CpQClxL84nbVHkdN9dC0gKu34XDHq2UGPD3OG33ezs3odH81YycYRSXS2EnVKpQKH7",
+	"yiSKIZu7kVACmLLAjikw+4Z/41Qy1SPB64V+ZcwGxSGeULAZg2mCA2pF41TIF5ZR6ThSe0U6QWS1vVpv",
+	"ldPPEZ5tv0aKHeHVMrOIaiMhB1vWdD/ObSZl4SLBFkTVDDrlztIGDhVQZ1Noe9SqjjbXH/KEAz16zFDN",
+	"LKzSmrGkO4SYsgzEsnkRcQ4aaquVjV1/9S0sm/GdBzDyZ8ykx6SnYvTyYpqwyPvp7sabceG9gwgojjZv",
+	"2yExZ4wgTLsm49F49L32nueYQc5ISC5H49GFfvQAFZdhBz+ax4Y5loFrRErcbygJyW9YKknmPKtqwMV4",
+	"bMDKVAUV5HlScRV8lOYxwYhYH30rcEZC8k3QjISCah4U1M8VJQLdyH//lZTnZlAk6sU2NNMny3YPGT7l",
+	"GCmkXr3GJ7JIU01xqF+QvcZZnwQgJVb1m0sLbkaA71hi8PtUoFRvOF1uRZIWiWI5CBVoWX1HQUH/YCqR",
+	"r7uKU6LA9TM528Lm/rZUHEthjha9nzl3BiavzL2SO+qm7W1ZHutXp33MnR5H++VsAO4OzklcfF2ZjbqX",
+	"3gD17g0I58Sp4cmjGxg1rcFqMzxZm0j0Y/0uydfl+YbkHASkqFBIEn5YEab319WR+MS8UrWmZ9ts+Uch",
+	"/7jD7dUu5O+597bC9owQN6A1iPv2ftGamb8usC/XpFoh/Sf6VIuiHFQU25oThVdMgAFKanv4OUBN/b/I",
+	"wxDfLZvsUDcs53PDtcLS/OfnrNn2nAmr+lzlrGYrWJlvZz06XEXc4ew2FocpweeMbtXTWImuu6GdBY5f",
+	"lu51H6tp2dvEXoGbgdrX1zp4uHGxTR0sDnWt8tvMcF2rNN+Lratzr4JVjylMRBrbYFV/JFo7B0P1vwz0",
+	"yb3WJyd39qXwdIvZXMUkvBj7JGVZ/fNyd+QwcJFs2D33ImlYO1AkX5uogSpm/xz8AsVRVcxi46xEsaip",
+	"Lz9qkVipXIZBMDOT5AhEjhTxnxHjwWJM1o/rfwMAAP//eHxg4MgnAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

@@ -1,7 +1,6 @@
 package facade
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -33,15 +32,7 @@ func Run(c config.FacadeConfig, q database.Querier) {
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
 
-	r.Get("/@me", f.needsSessionMiddleware(f.sessionMiddleware(func(w http.ResponseWriter, r *http.Request) {
-		b, err := json.Marshal(getSession(r.Context()))
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-		}
-		w.Write(b)
-	})))
-
-	handler := Handler(f, WithRouter(r))
+	handler := Handler(f, WithRouter(r), WithMiddleware("session", f.sessionMiddleware))
 
 	go func() {
 		err := http.ListenAndServe(fmt.Sprintf(":%s", c.Port), handler)

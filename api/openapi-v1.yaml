@@ -1,12 +1,28 @@
 openapi: 3.0.2
 info:
   title: Facade
-  description: >-
-    This is the public API for Facade.
+  description: This is the public API for Facade.
   version: 0.0.1
 servers:
   - url: https://facade.carpedeez.io/v0
 paths:
+  /@me:
+    get:
+      summary: Get Session
+      operationId: me
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+        default:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /assets:
     post:
       summary: Upload file
@@ -74,7 +90,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'    
+                $ref: '#/components/schemas/Error'
     patch:
       summary: Update user
       operationId: updateUser
@@ -105,7 +121,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /d: #d for display
+  /d:
     post:
       requestBody:
         required: true
@@ -120,7 +136,7 @@ paths:
           description: OK
           content:
             application/json:
-              schema: 
+              schema:
                 type: integer
                 format: int64
         '400':
@@ -203,7 +219,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /i: #i for item
+  /i:
     post:
       summary: Create Item
       operationId: createItem
@@ -234,7 +250,7 @@ paths:
         - name: itemID
           required: true
           in: path
-          schema: 
+          schema:
             type: integer
             format: int64
       responses:
@@ -257,7 +273,7 @@ paths:
         - name: itemID
           required: true
           in: path
-          schema: 
+          schema:
             type: integer
             format: int64
       requestBody:
@@ -282,11 +298,11 @@ paths:
     delete:
       summary: Delete item
       operationId: deleteItem
-      parameters: 
+      parameters:
         - name: itemID
           required: true
           in: path
-          schema: 
+          schema:
             type: integer
             format: int64
       responses:
@@ -300,14 +316,136 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
+    Session:
+      type: object
+      required:
+        - id
+        - active
+        - expires_at
+        - authenticated_at
+        - authenticator_assurance_level
+        - authentication_methods
+        - issued_at
+        - identity
+      properties:
+        id:
+          type: string
+        active:
+          type: boolean
+        expires_at:
+          type: string
+        authenticated_at:
+          type: string
+        authenticator_assurance_level:
+          type: string
+        authentication_methods:
+          type: array
+          items:
+            type: object
+            required:
+              - method
+              - completed_at
+            properties:
+              method:
+                type: string
+              completed_at:
+                type: string
+        issued_at:
+          type: string
+        identity:
+          type: object
+          required:
+            - id
+            - schema_id
+            - schema_url
+            - state
+            - state_changed_at
+            - traits
+            - verifiable_addresses
+            - recovery_addresses
+            - created_at
+            - updated_at
+          properties:
+            id:
+              type: string
+            schema_id:
+              type: string
+            schema_url:
+              type: string
+            state:
+              type: string
+            state_changed_at:
+              type: string
+            traits:
+              type: object
+              required:
+                - website
+                - email
+              properties:
+                website:
+                  type: string
+                email:
+                  type: string
+            verifiable_addresses:
+              type: array
+              items:
+                type: object
+                required:
+                  - id
+                  - value
+                  - verified
+                  - via
+                  - status
+                  - created_at
+                  - updated_at
+                properties:
+                  id:
+                    type: string
+                  value:
+                    type: string
+                  verified:
+                    type: boolean
+                  via:
+                    type: string
+                  status:
+                    type: string
+                  created_at:
+                    type: string
+                  updated_at:
+                    type: string
+            recovery_addresses:
+              type: array
+              items:
+                type: object
+                required:
+                  - id
+                  - value
+                  - via
+                  - created_at
+                  - updated_at
+                properties:
+                  id:
+                    type: string
+                  value:
+                    type: string
+                  via:
+                    type: string
+                  created_at:
+                    type: string
+                  updated_at:
+                    type: string
+            created_at:
+              type: string
+            updated_at:
+              type: string
     Upload:
-      required: 
+      required:
         - component
         - file
       type: object
       additionalProperties: false
       properties:
-        component: # avatar, display photo, item photo, etc. create enum for this when known
+        component:
           type: string
         file:
           type: string
@@ -335,14 +473,14 @@ components:
           type: string
         displayIDs:
           type: array
-          items: 
+          items:
             type: integer
             format: int64
         photoURL:
           type: string
         socialLinks:
           type: array
-          items: 
+          items:
             type: string
     PostUser:
       description: registration
@@ -371,7 +509,7 @@ components:
           type: string
         socialLinks:
           type: array
-          items: 
+          items:
             type: string
     GetDisplay:
       type: object
@@ -397,7 +535,7 @@ components:
           type: string
         itemIDs:
           type: array
-          items: 
+          items:
             type: integer
             format: int64
     PostDisplay:
@@ -430,7 +568,7 @@ components:
         - displayID
       additionalProperties: false
       properties:
-        id: 
+        id:
           type: integer
           format: int64
         externalLink:
@@ -477,8 +615,3 @@ components:
           format: int32
         message:
           type: string
-  securitySchemes:
-    api_key:
-      type: apiKey
-      name: api_key
-      in: header
