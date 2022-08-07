@@ -1,19 +1,7 @@
-CREATE TABLE users
-(
-    id BIGSERIAL PRIMARY KEY,
-    
-    username VARCHAR UNIQUE NOT NULL,
-    email VARCHAR UNIQUE NOT NULL,
-    first_name VARCHAR NOT NULL,
-    last_name VARCHAR NOT NULL,
-    photo_url VARCHAR NOT NULL,
-    social_links VARCHAR[] NOT NULL
-);
-
 CREATE TABLE displays
 (
     id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT REFERENCES users(id),
+    user_id VARCHAR NOT NULL,
 
     title VARCHAR NOT NULL,
     descr VARCHAR NOT NULL, --description
@@ -23,8 +11,8 @@ CREATE TABLE displays
 CREATE TABLE items
 (
     id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT REFERENCES users(id),
-    display_id INTEGER REFERENCES displays(id),
+    user_id VARCHAR NOT NULL,
+    display_id BIGINT REFERENCES displays(id) NOT NULL,
 
     external_link VARCHAR NOT NULL,
     social_post_link VARCHAR NOT NULL,

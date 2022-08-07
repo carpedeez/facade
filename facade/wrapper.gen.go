@@ -29,12 +29,12 @@ type Error struct {
 
 // GetDisplay defines model for GetDisplay.
 type GetDisplay struct {
-	Description string  `json:"description"`
-	ID          int64   `json:"id"`
-	ItemIDS     []int64 `json:"itemIDs"`
-	PhotoURL    string  `json:"photoURL"`
-	Title       string  `json:"title"`
-	Username    string  `json:"username"`
+	Description string    `json:"description"`
+	ID          int64     `json:"id"`
+	Items       []GetItem `json:"items"`
+	PhotoURL    string    `json:"photoURL"`
+	Title       string    `json:"title"`
+	UserID      string    `json:"userID"`
 }
 
 // GetItem defines model for GetItem.
@@ -44,18 +44,7 @@ type GetItem struct {
 	ID             int64  `json:"id"`
 	PhotoURL       string `json:"photoURL"`
 	SocialPostLink string `json:"socialPostLink"`
-	Username       string `json:"username"`
-}
-
-// GetUser defines model for GetUser.
-type GetUser struct {
-	DisplayIDS  []int64  `json:"displayIDs"`
-	FirstName   string   `json:"firstName"`
-	ID          int64    `json:"id"`
-	LastName    string   `json:"lastName"`
-	PhotoURL    string   `json:"photoURL"`
-	SocialLinks []string `json:"socialLinks"`
-	Username    string   `json:"username"`
+	UserID         string `json:"userID"`
 }
 
 // PatchDisplay defines model for PatchDisplay.
@@ -71,14 +60,6 @@ type PatchItem struct {
 	SocialPostLink *string `json:"socialPostLink,omitempty"`
 }
 
-// PatchUser defines model for PatchUser.
-type PatchUser struct {
-	FirstName   *string  `json:"firstName,omitempty"`
-	LastName    *string  `json:"lastName,omitempty"`
-	SocialLinks []string `json:"socialLinks,omitempty"`
-	Username    *string  `json:"username,omitempty"`
-}
-
 // PostDisplay defines model for PostDisplay.
 type PostDisplay struct {
 	Description string `json:"description"`
@@ -87,15 +68,8 @@ type PostDisplay struct {
 
 // PostItem defines model for PostItem.
 type PostItem struct {
-	ExternalLink   string `json:"externalLink"`
-	SocialPostLink string `json:"socialPostLink"`
-}
-
-// registration
-type PostUser struct {
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-	Username  string `json:"username"`
+	DisplayID    int64  `json:"displayID"`
+	ExternalLink string `json:"externalLink"`
 }
 
 // Session defines model for Session.
@@ -159,12 +133,6 @@ type CreateItemJSONBody PostItem
 // UpdateItemJSONBody defines parameters for UpdateItem.
 type UpdateItemJSONBody PatchItem
 
-// CreateUserJSONBody defines parameters for CreateUser.
-type CreateUserJSONBody PostUser
-
-// UpdateUserJSONBody defines parameters for UpdateUser.
-type UpdateUserJSONBody PatchUser
-
 // CreateDisplayJSONRequestBody defines body for CreateDisplay for application/json ContentType.
 type CreateDisplayJSONRequestBody CreateDisplayJSONBody
 
@@ -194,22 +162,6 @@ type UpdateItemJSONRequestBody UpdateItemJSONBody
 
 // Bind implements render.Binder.
 func (UpdateItemJSONRequestBody) Bind(*http.Request) error {
-	return nil
-}
-
-// CreateUserJSONRequestBody defines body for CreateUser for application/json ContentType.
-type CreateUserJSONRequestBody CreateUserJSONBody
-
-// Bind implements render.Binder.
-func (CreateUserJSONRequestBody) Bind(*http.Request) error {
-	return nil
-}
-
-// UpdateUserJSONRequestBody defines body for UpdateUser for application/json ContentType.
-type UpdateUserJSONRequestBody UpdateUserJSONBody
-
-// Bind implements render.Binder.
-func (UpdateUserJSONRequestBody) Bind(*http.Request) error {
 	return nil
 }
 
@@ -264,16 +216,6 @@ func MeJSON200Response(body Session) *Response {
 	}
 }
 
-// MeJSONDefaultResponse is a constructor method for a Me response.
-// A *Response is returned with the configured status code and content type from the spec.
-func MeJSONDefaultResponse(body Error) *Response {
-	return &Response{
-		body:        body,
-		Code:        200,
-		contentType: "application/json",
-	}
-}
-
 // UploadFileJSON200Response is a constructor method for a UploadFile response.
 // A *Response is returned with the configured status code and content type from the spec.
 func UploadFileJSON200Response(body string) *Response {
@@ -284,12 +226,12 @@ func UploadFileJSON200Response(body string) *Response {
 	}
 }
 
-// UploadFileJSONDefaultResponse is a constructor method for a UploadFile response.
+// UploadFileJSON400Response is a constructor method for a UploadFile response.
 // A *Response is returned with the configured status code and content type from the spec.
-func UploadFileJSONDefaultResponse(body Error) *Response {
+func UploadFileJSON400Response(body Error) *Response {
 	return &Response{
 		body:        body,
-		Code:        200,
+		Code:        400,
 		contentType: "application/json",
 	}
 }
@@ -304,22 +246,12 @@ func CreateDisplayJSON200Response(body int64) *Response {
 	}
 }
 
-// CreateDisplayJSONDefaultResponse is a constructor method for a CreateDisplay response.
+// CreateDisplayJSON400Response is a constructor method for a CreateDisplay response.
 // A *Response is returned with the configured status code and content type from the spec.
-func CreateDisplayJSONDefaultResponse(body Error) *Response {
+func CreateDisplayJSON400Response(body Error) *Response {
 	return &Response{
 		body:        body,
-		Code:        200,
-		contentType: "application/json",
-	}
-}
-
-// DeleteDisplayJSONDefaultResponse is a constructor method for a DeleteDisplay response.
-// A *Response is returned with the configured status code and content type from the spec.
-func DeleteDisplayJSONDefaultResponse(body Error) *Response {
-	return &Response{
-		body:        body,
-		Code:        200,
+		Code:        400,
 		contentType: "application/json",
 	}
 }
@@ -327,16 +259,6 @@ func DeleteDisplayJSONDefaultResponse(body Error) *Response {
 // GetDisplayJSON200Response is a constructor method for a GetDisplay response.
 // A *Response is returned with the configured status code and content type from the spec.
 func GetDisplayJSON200Response(body GetDisplay) *Response {
-	return &Response{
-		body:        body,
-		Code:        200,
-		contentType: "application/json",
-	}
-}
-
-// GetDisplayJSONDefaultResponse is a constructor method for a GetDisplay response.
-// A *Response is returned with the configured status code and content type from the spec.
-func GetDisplayJSONDefaultResponse(body Error) *Response {
 	return &Response{
 		body:        body,
 		Code:        200,
@@ -354,12 +276,12 @@ func UpdateDisplayJSON200Response(body GetDisplay) *Response {
 	}
 }
 
-// UpdateDisplayJSONDefaultResponse is a constructor method for a UpdateDisplay response.
+// UpdateDisplayJSON400Response is a constructor method for a UpdateDisplay response.
 // A *Response is returned with the configured status code and content type from the spec.
-func UpdateDisplayJSONDefaultResponse(body Error) *Response {
+func UpdateDisplayJSON400Response(body Error) *Response {
 	return &Response{
 		body:        body,
-		Code:        200,
+		Code:        400,
 		contentType: "application/json",
 	}
 }
@@ -374,22 +296,12 @@ func CreateItemJSON200Response(body GetItem) *Response {
 	}
 }
 
-// CreateItemJSONDefaultResponse is a constructor method for a CreateItem response.
+// CreateItemJSON400Response is a constructor method for a CreateItem response.
 // A *Response is returned with the configured status code and content type from the spec.
-func CreateItemJSONDefaultResponse(body Error) *Response {
+func CreateItemJSON400Response(body Error) *Response {
 	return &Response{
 		body:        body,
-		Code:        200,
-		contentType: "application/json",
-	}
-}
-
-// DeleteItemJSONDefaultResponse is a constructor method for a DeleteItem response.
-// A *Response is returned with the configured status code and content type from the spec.
-func DeleteItemJSONDefaultResponse(body Error) *Response {
-	return &Response{
-		body:        body,
-		Code:        200,
+		Code:        400,
 		contentType: "application/json",
 	}
 }
@@ -397,16 +309,6 @@ func DeleteItemJSONDefaultResponse(body Error) *Response {
 // GetItemJSON200Response is a constructor method for a GetItem response.
 // A *Response is returned with the configured status code and content type from the spec.
 func GetItemJSON200Response(body GetItem) *Response {
-	return &Response{
-		body:        body,
-		Code:        200,
-		contentType: "application/json",
-	}
-}
-
-// GetItemJSONDefaultResponse is a constructor method for a GetItem response.
-// A *Response is returned with the configured status code and content type from the spec.
-func GetItemJSONDefaultResponse(body Error) *Response {
 	return &Response{
 		body:        body,
 		Code:        200,
@@ -424,62 +326,12 @@ func UpdateItemJSON200Response(body GetItem) *Response {
 	}
 }
 
-// UpdateItemJSONDefaultResponse is a constructor method for a UpdateItem response.
+// UpdateItemJSON400Response is a constructor method for a UpdateItem response.
 // A *Response is returned with the configured status code and content type from the spec.
-func UpdateItemJSONDefaultResponse(body Error) *Response {
+func UpdateItemJSON400Response(body Error) *Response {
 	return &Response{
 		body:        body,
-		Code:        200,
-		contentType: "application/json",
-	}
-}
-
-// CreateUserJSONDefaultResponse is a constructor method for a CreateUser response.
-// A *Response is returned with the configured status code and content type from the spec.
-func CreateUserJSONDefaultResponse(body Error) *Response {
-	return &Response{
-		body:        body,
-		Code:        200,
-		contentType: "application/json",
-	}
-}
-
-// GetUserJSON200Response is a constructor method for a GetUser response.
-// A *Response is returned with the configured status code and content type from the spec.
-func GetUserJSON200Response(body GetUser) *Response {
-	return &Response{
-		body:        body,
-		Code:        200,
-		contentType: "application/json",
-	}
-}
-
-// GetUserJSONDefaultResponse is a constructor method for a GetUser response.
-// A *Response is returned with the configured status code and content type from the spec.
-func GetUserJSONDefaultResponse(body Error) *Response {
-	return &Response{
-		body:        body,
-		Code:        200,
-		contentType: "application/json",
-	}
-}
-
-// UpdateUserJSON200Response is a constructor method for a UpdateUser response.
-// A *Response is returned with the configured status code and content type from the spec.
-func UpdateUserJSON200Response(body GetUser) *Response {
-	return &Response{
-		body:        body,
-		Code:        200,
-		contentType: "application/json",
-	}
-}
-
-// UpdateUserJSONDefaultResponse is a constructor method for a UpdateUser response.
-// A *Response is returned with the configured status code and content type from the spec.
-func UpdateUserJSONDefaultResponse(body Error) *Response {
-	return &Response{
-		body:        body,
-		Code:        200,
+		Code:        400,
 		contentType: "application/json",
 	}
 }
@@ -516,15 +368,6 @@ type ServerInterface interface {
 	// Update item
 	// (PATCH /i/{itemID})
 	UpdateItem(w http.ResponseWriter, r *http.Request, itemID int64) *Response
-	// Create user
-	// (POST /u)
-	CreateUser(w http.ResponseWriter, r *http.Request) *Response
-	// Get user
-	// (GET /u/{username})
-	GetUser(w http.ResponseWriter, r *http.Request, username string) *Response
-	// Update user
-	// (PATCH /u/{username})
-	UpdateUser(w http.ResponseWriter, r *http.Request, username string) *Response
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -567,6 +410,9 @@ func (siw *ServerInterfaceWrapper) UploadFile(w http.ResponseWriter, r *http.Req
 		}
 	})
 
+	// Operation specific middleware
+	handler = siw.Middlewares["session"](handler).ServeHTTP
+
 	handler(w, r.WithContext(ctx))
 }
 
@@ -584,6 +430,9 @@ func (siw *ServerInterfaceWrapper) CreateDisplay(w http.ResponseWriter, r *http.
 			}
 		}
 	})
+
+	// Operation specific middleware
+	handler = siw.Middlewares["session"](handler).ServeHTTP
 
 	handler(w, r.WithContext(ctx))
 }
@@ -610,6 +459,9 @@ func (siw *ServerInterfaceWrapper) DeleteDisplay(w http.ResponseWriter, r *http.
 			}
 		}
 	})
+
+	// Operation specific middleware
+	handler = siw.Middlewares["session"](handler).ServeHTTP
 
 	handler(w, r.WithContext(ctx))
 }
@@ -663,6 +515,9 @@ func (siw *ServerInterfaceWrapper) UpdateDisplay(w http.ResponseWriter, r *http.
 		}
 	})
 
+	// Operation specific middleware
+	handler = siw.Middlewares["session"](handler).ServeHTTP
+
 	handler(w, r.WithContext(ctx))
 }
 
@@ -680,6 +535,9 @@ func (siw *ServerInterfaceWrapper) CreateItem(w http.ResponseWriter, r *http.Req
 			}
 		}
 	})
+
+	// Operation specific middleware
+	handler = siw.Middlewares["session"](handler).ServeHTTP
 
 	handler(w, r.WithContext(ctx))
 }
@@ -706,6 +564,9 @@ func (siw *ServerInterfaceWrapper) DeleteItem(w http.ResponseWriter, r *http.Req
 			}
 		}
 	})
+
+	// Operation specific middleware
+	handler = siw.Middlewares["session"](handler).ServeHTTP
 
 	handler(w, r.WithContext(ctx))
 }
@@ -759,75 +620,8 @@ func (siw *ServerInterfaceWrapper) UpdateItem(w http.ResponseWriter, r *http.Req
 		}
 	})
 
-	handler(w, r.WithContext(ctx))
-}
-
-// CreateUser operation middleware
-func (siw *ServerInterfaceWrapper) CreateUser(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp := siw.Handler.CreateUser(w, r)
-		if resp != nil {
-			if resp.body != nil {
-				render.Render(w, r, resp)
-			} else {
-				w.WriteHeader(resp.Code)
-			}
-		}
-	})
-
-	handler(w, r.WithContext(ctx))
-}
-
-// GetUser operation middleware
-func (siw *ServerInterfaceWrapper) GetUser(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	// ------------- Path parameter "username" -------------
-	var username string
-
-	if err := runtime.BindStyledParameter("simple", false, "username", chi.URLParam(r, "username"), &username); err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "username"})
-		return
-	}
-
-	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp := siw.Handler.GetUser(w, r, username)
-		if resp != nil {
-			if resp.body != nil {
-				render.Render(w, r, resp)
-			} else {
-				w.WriteHeader(resp.Code)
-			}
-		}
-	})
-
-	handler(w, r.WithContext(ctx))
-}
-
-// UpdateUser operation middleware
-func (siw *ServerInterfaceWrapper) UpdateUser(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	// ------------- Path parameter "username" -------------
-	var username string
-
-	if err := runtime.BindStyledParameter("simple", false, "username", chi.URLParam(r, "username"), &username); err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "username"})
-		return
-	}
-
-	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp := siw.Handler.UpdateUser(w, r, username)
-		if resp != nil {
-			if resp.body != nil {
-				render.Render(w, r, resp)
-			} else {
-				w.WriteHeader(resp.Code)
-			}
-		}
-	})
+	// Operation specific middleware
+	handler = siw.Middlewares["session"](handler).ServeHTTP
 
 	handler(w, r.WithContext(ctx))
 }
@@ -949,6 +743,13 @@ func Handler(si ServerInterface, opts ...ServerOption) http.Handler {
 		ErrorHandlerFunc: options.ErrorHandlerFunc,
 	}
 
+	middlewares := []string{"session"}
+	for _, m := range middlewares {
+		if _, ok := wrapper.Middlewares[m]; !ok {
+			panic("goapi-gen: could not find tagged middleware " + m)
+		}
+	}
+
 	r.Route(options.BaseURL, func(r chi.Router) {
 		r.Get("/@me", wrapper.Me)
 		r.Post("/assets", wrapper.UploadFile)
@@ -960,9 +761,6 @@ func Handler(si ServerInterface, opts ...ServerOption) http.Handler {
 		r.Delete("/i/{itemID}", wrapper.DeleteItem)
 		r.Get("/i/{itemID}", wrapper.GetItem)
 		r.Patch("/i/{itemID}", wrapper.UpdateItem)
-		r.Post("/u", wrapper.CreateUser)
-		r.Get("/u/{username}", wrapper.GetUser)
-		r.Patch("/u/{username}", wrapper.UpdateUser)
 
 	})
 	return r
@@ -1001,29 +799,26 @@ func WithErrorHandler(handler func(w http.ResponseWriter, r *http.Request, err e
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

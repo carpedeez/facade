@@ -4,7 +4,7 @@ info:
   description: This is the public API for Facade.
   version: 0.0.1
 servers:
-  - url: https://facade.carpedeez.io/v0
+  - url: https://facadeapp.dev/v0
 paths:
   /@me:
     get:
@@ -17,13 +17,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Session'
-        default:
-          description: Unexpected Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
   /assets:
+    x-go-middlewares: 
+      - session
     post:
       summary: Upload file
       operationId: uploadFile
@@ -40,88 +36,16 @@ paths:
             application/json:
               schema:
                 type: string
-                description: URL for image
-        default:
-          description: Unexpected Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /u:
-    post:
-      summary: Create user
-      operationId: createUser
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PostUser'
-      responses:
-        '204':
-          description: OK
-        default:
-          description: Unexpected Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /u/{username}:
-    get:
-      summary: Get user
-      operationId: getUser
-      parameters:
-        - name: username
-          required: true
-          in: path
-          schema:
-            type: string
-            minLength: 3
-            maxLength: 20
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GetUser'
-        default:
-          description: Unexpected Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    patch:
-      summary: Update user
-      operationId: updateUser
-      parameters:
-        - name: username
-          required: true
-          in: path
-          schema:
-            type: string
-            minLength: 3
-            maxLength: 20
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchUser'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GetUser'
-        default:
-          description: Unexpected Error
+                description: URL for assets
+        '400':
+          description: Bad Request
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
   /d:
+    x-go-middlewares: 
+      - session
     post:
       requestBody:
         required: true
@@ -141,12 +65,10 @@ paths:
                 format: int64
         '400':
           description: Bad Request
-        default:
-          description: Unexpected Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'  
   /d/{displayID}:
     get:
       summary: Get display
@@ -164,14 +86,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetDisplay'
-        default:
-          description: Unexpected Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/GetDisplay'     
     patch:
+      x-go-middlewares: 
+        - session
       summary: Update display
       operationId: updateDisplay
       parameters:
@@ -193,14 +111,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetDisplay'
-        default:
-          description: Unexpected Error
+                $ref: '#/components/schemas/GetDisplay'  
+        '400':
+          description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'      
     delete:
+      x-go-middlewares: 
+        - session
       summary: Delete display
       operationId: deleteDisplay
       parameters:
@@ -212,14 +132,10 @@ paths:
             format: int64
       responses:
         '204':
-          description: No Content
-        default:
-          description: Unexpected Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          description: No Content      
   /i:
+    x-go-middlewares:
+      - session
     post:
       summary: Create Item
       operationId: createItem
@@ -235,13 +151,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetItem'
-        default:
-          description: Unexpected Error
+                $ref: '#/components/schemas/GetItem'  
+        '400':
+          description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'     
   /i/{itemID}:
     get:
       summary: Get item
@@ -259,14 +175,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetItem'
-        default:
-          description: Unexpected Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/GetItem'       
     patch:
+      x-go-middlewares:
+        - session
       summary: Update item
       operationId: updateItem
       parameters:
@@ -289,13 +201,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetItem'
-        default:
-          description: Unexpected Error
+        '400':
+          description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Error'       
     delete:
+      x-go-middlewares:
+        - session
       summary: Delete item
       operationId: deleteItem
       parameters:
@@ -307,13 +221,7 @@ paths:
             format: int64
       responses:
         '200':
-          description: OK
-        default:
-          description: Unexpected Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          description: OK       
 components:
   schemas:
     Session:
@@ -450,82 +358,21 @@ components:
         file:
           type: string
           format: binary
-    GetUser:
-      type: object
-      required:
-        - id
-        - username
-        - firstName
-        - lastName
-        - displayIDs
-        - photoURL
-        - socialLinks
-      additionalProperties: false
-      properties:
-        id:
-          type: integer
-          format: int64
-        username:
-          type: string
-        firstName:
-          type: string
-        lastName:
-          type: string
-        displayIDs:
-          type: array
-          items:
-            type: integer
-            format: int64
-        photoURL:
-          type: string
-        socialLinks:
-          type: array
-          items:
-            type: string
-    PostUser:
-      description: registration
-      type: object
-      required:
-        - username
-        - firstName
-        - lastName
-      additionalProperties: false
-      properties:
-        username:
-          type: string
-        firstName:
-          type: string
-        lastName:
-          type: string
-    PatchUser:
-      type: object
-      additionalProperties: false
-      properties:
-        username:
-          type: string
-        firstName:
-          type: string
-        lastName:
-          type: string
-        socialLinks:
-          type: array
-          items:
-            type: string
     GetDisplay:
       type: object
       required:
         - id
-        - username
+        - userID
         - title
         - description
         - photoURL
-        - itemIDs
+        - items
       additionalProperties: false
       properties:
         id:
           type: integer
           format: int64
-        username:
+        userID:
           type: string
         title:
           type: string
@@ -533,11 +380,10 @@ components:
           type: string
         photoURL:
           type: string
-        itemIDs:
+        items:
           type: array
           items:
-            type: integer
-            format: int64
+            $ref: '#/components/schemas/GetItem'
     PostDisplay:
       type: object
       required:
@@ -564,7 +410,7 @@ components:
         - externalLink
         - socialPostLink
         - photoURL
-        - username
+        - userID
         - displayID
       additionalProperties: false
       properties:
@@ -577,7 +423,7 @@ components:
           type: string
         photoURL:
           type: string
-        username:
+        userID:
           type: string
         displayID:
           type: integer
@@ -585,13 +431,14 @@ components:
     PostItem:
       type: object
       required:
+        - displayID
         - externalLink
-        - socialPostLink
       additionalProperties: false
       properties:
+        displayID:
+          type: integer
+          format: int64
         externalLink:
-          type: string
-        socialPostLink:
           type: string
     PatchItem:
       type: object

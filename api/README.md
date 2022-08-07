@@ -8,7 +8,7 @@ This is the public API for Facade.
 
 Base URLs:
 
-* <a href="https://facade.carpedeez.io/v0">https://facade.carpedeez.io/v0</a>
+* <a href="https://facadeapp.dev/v0">https://facadeapp.dev/v0</a>
 
 <h1 id="facade-default">Default</h1>
 
@@ -79,7 +79,6 @@ Base URLs:
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[Session](#schemasession)|
-|default|Default|Unexpected Error|[Error](#schemaerror)|
 
 <aside class="success">
 This operation does not require authentication
@@ -120,157 +119,7 @@ file: string
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|string|
-|default|Default|Unexpected Error|[Error](#schemaerror)|
-
-<aside class="success">
-This operation does not require authentication
-</aside>
-
-## createUser
-
-<a id="opIdcreateUser"></a>
-
-`POST /u`
-
-*Create user*
-
-> Body parameter
-
-```json
-{
-  "username": "string",
-  "firstName": "string",
-  "lastName": "string"
-}
-```
-
-<h3 id="createuser-parameters">Parameters</h3>
-
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|body|body|[PostUser](#schemapostuser)|true|none|
-
-> Example responses
-
-> default Response
-
-```json
-{
-  "code": 0,
-  "message": "string"
-}
-```
-
-<h3 id="createuser-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|204|[No Content](https://tools.ietf.org/html/rfc7231#section-6.3.5)|OK|None|
-|default|Default|Unexpected Error|[Error](#schemaerror)|
-
-<aside class="success">
-This operation does not require authentication
-</aside>
-
-## getUser
-
-<a id="opIdgetUser"></a>
-
-`GET /u/{username}`
-
-*Get user*
-
-<h3 id="getuser-parameters">Parameters</h3>
-
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|username|path|string|true|none|
-
-> Example responses
-
-> 200 Response
-
-```json
-{
-  "id": 0,
-  "username": "string",
-  "firstName": "string",
-  "lastName": "string",
-  "displayIDs": [
-    0
-  ],
-  "photoURL": "string",
-  "socialLinks": [
-    "string"
-  ]
-}
-```
-
-<h3 id="getuser-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[GetUser](#schemagetuser)|
-|default|Default|Unexpected Error|[Error](#schemaerror)|
-
-<aside class="success">
-This operation does not require authentication
-</aside>
-
-## updateUser
-
-<a id="opIdupdateUser"></a>
-
-`PATCH /u/{username}`
-
-*Update user*
-
-> Body parameter
-
-```json
-{
-  "username": "string",
-  "firstName": "string",
-  "lastName": "string",
-  "socialLinks": [
-    "string"
-  ]
-}
-```
-
-<h3 id="updateuser-parameters">Parameters</h3>
-
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|username|path|string|true|none|
-|body|body|[PatchUser](#schemapatchuser)|true|none|
-
-> Example responses
-
-> 200 Response
-
-```json
-{
-  "id": 0,
-  "username": "string",
-  "firstName": "string",
-  "lastName": "string",
-  "displayIDs": [
-    0
-  ],
-  "photoURL": "string",
-  "socialLinks": [
-    "string"
-  ]
-}
-```
-
-<h3 id="updateuser-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[GetUser](#schemagetuser)|
-|default|Default|Unexpected Error|[Error](#schemaerror)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request|[Error](#schemaerror)|
 
 <aside class="success">
 This operation does not require authentication
@@ -312,8 +161,7 @@ This operation does not require authentication
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|integer|
-|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request|None|
-|default|Default|Unexpected Error|[Error](#schemaerror)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request|[Error](#schemaerror)|
 
 <aside class="success">
 This operation does not require authentication
@@ -340,12 +188,19 @@ This operation does not require authentication
 ```json
 {
   "id": 0,
-  "username": "string",
+  "userID": "string",
   "title": "string",
   "description": "string",
   "photoURL": "string",
-  "itemIDs": [
-    0
+  "items": [
+    {
+      "id": 0,
+      "externalLink": "string",
+      "socialPostLink": "string",
+      "photoURL": "string",
+      "userID": "string",
+      "displayID": 0
+    }
   ]
 }
 ```
@@ -355,7 +210,6 @@ This operation does not require authentication
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[GetDisplay](#schemagetdisplay)|
-|default|Default|Unexpected Error|[Error](#schemaerror)|
 
 <aside class="success">
 This operation does not require authentication
@@ -392,12 +246,19 @@ This operation does not require authentication
 ```json
 {
   "id": 0,
-  "username": "string",
+  "userID": "string",
   "title": "string",
   "description": "string",
   "photoURL": "string",
-  "itemIDs": [
-    0
+  "items": [
+    {
+      "id": 0,
+      "externalLink": "string",
+      "socialPostLink": "string",
+      "photoURL": "string",
+      "userID": "string",
+      "displayID": 0
+    }
   ]
 }
 ```
@@ -407,7 +268,7 @@ This operation does not require authentication
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[GetDisplay](#schemagetdisplay)|
-|default|Default|Unexpected Error|[Error](#schemaerror)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request|[Error](#schemaerror)|
 
 <aside class="success">
 This operation does not require authentication
@@ -427,23 +288,11 @@ This operation does not require authentication
 |---|---|---|---|---|
 |displayID|path|integer(int64)|true|none|
 
-> Example responses
-
-> default Response
-
-```json
-{
-  "code": 0,
-  "message": "string"
-}
-```
-
 <h3 id="deletedisplay-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |204|[No Content](https://tools.ietf.org/html/rfc7231#section-6.3.5)|No Content|None|
-|default|Default|Unexpected Error|[Error](#schemaerror)|
 
 <aside class="success">
 This operation does not require authentication
@@ -461,8 +310,8 @@ This operation does not require authentication
 
 ```json
 {
-  "externalLink": "string",
-  "socialPostLink": "string"
+  "displayID": 0,
+  "externalLink": "string"
 }
 ```
 
@@ -482,7 +331,7 @@ This operation does not require authentication
   "externalLink": "string",
   "socialPostLink": "string",
   "photoURL": "string",
-  "username": "string",
+  "userID": "string",
   "displayID": 0
 }
 ```
@@ -492,7 +341,7 @@ This operation does not require authentication
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[GetItem](#schemagetitem)|
-|default|Default|Unexpected Error|[Error](#schemaerror)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request|[Error](#schemaerror)|
 
 <aside class="success">
 This operation does not require authentication
@@ -522,7 +371,7 @@ This operation does not require authentication
   "externalLink": "string",
   "socialPostLink": "string",
   "photoURL": "string",
-  "username": "string",
+  "userID": "string",
   "displayID": 0
 }
 ```
@@ -532,7 +381,6 @@ This operation does not require authentication
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[GetItem](#schemagetitem)|
-|default|Default|Unexpected Error|[Error](#schemaerror)|
 
 <aside class="success">
 This operation does not require authentication
@@ -573,7 +421,7 @@ This operation does not require authentication
   "externalLink": "string",
   "socialPostLink": "string",
   "photoURL": "string",
-  "username": "string",
+  "userID": "string",
   "displayID": 0
 }
 ```
@@ -583,7 +431,7 @@ This operation does not require authentication
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[GetItem](#schemagetitem)|
-|default|Default|Unexpected Error|[Error](#schemaerror)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request|[Error](#schemaerror)|
 
 <aside class="success">
 This operation does not require authentication
@@ -603,23 +451,11 @@ This operation does not require authentication
 |---|---|---|---|---|
 |itemID|path|integer(int64)|true|none|
 
-> Example responses
-
-> default Response
-
-```json
-{
-  "code": 0,
-  "message": "string"
-}
-```
-
 <h3 id="deleteitem-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
 |200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|None|
-|default|Default|Unexpected Error|[Error](#schemaerror)|
 
 <aside class="success">
 This operation does not require authentication
@@ -746,96 +582,6 @@ This operation does not require authentication
 |component|string|true|none|none|
 |file|string(binary)|true|none|none|
 
-<h2 id="tocS_GetUser">GetUser</h2>
-<!-- backwards compatibility -->
-<a id="schemagetuser"></a>
-<a id="schema_GetUser"></a>
-<a id="tocSgetuser"></a>
-<a id="tocsgetuser"></a>
-
-```json
-{
-  "id": 0,
-  "username": "string",
-  "firstName": "string",
-  "lastName": "string",
-  "displayIDs": [
-    0
-  ],
-  "photoURL": "string",
-  "socialLinks": [
-    "string"
-  ]
-}
-
-```
-
-### Properties
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|id|integer(int64)|true|none|none|
-|username|string|true|none|none|
-|firstName|string|true|none|none|
-|lastName|string|true|none|none|
-|displayIDs|[integer]|true|none|none|
-|photoURL|string|true|none|none|
-|socialLinks|[string]|true|none|none|
-
-<h2 id="tocS_PostUser">PostUser</h2>
-<!-- backwards compatibility -->
-<a id="schemapostuser"></a>
-<a id="schema_PostUser"></a>
-<a id="tocSpostuser"></a>
-<a id="tocspostuser"></a>
-
-```json
-{
-  "username": "string",
-  "firstName": "string",
-  "lastName": "string"
-}
-
-```
-
-registration
-
-### Properties
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|username|string|true|none|none|
-|firstName|string|true|none|none|
-|lastName|string|true|none|none|
-
-<h2 id="tocS_PatchUser">PatchUser</h2>
-<!-- backwards compatibility -->
-<a id="schemapatchuser"></a>
-<a id="schema_PatchUser"></a>
-<a id="tocSpatchuser"></a>
-<a id="tocspatchuser"></a>
-
-```json
-{
-  "username": "string",
-  "firstName": "string",
-  "lastName": "string",
-  "socialLinks": [
-    "string"
-  ]
-}
-
-```
-
-### Properties
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|username|string|false|none|none|
-|firstName|string|false|none|none|
-|lastName|string|false|none|none|
-|socialLinks|[string]|false|none|none|
-
 <h2 id="tocS_GetDisplay">GetDisplay</h2>
 <!-- backwards compatibility -->
 <a id="schemagetdisplay"></a>
@@ -846,12 +592,19 @@ registration
 ```json
 {
   "id": 0,
-  "username": "string",
+  "userID": "string",
   "title": "string",
   "description": "string",
   "photoURL": "string",
-  "itemIDs": [
-    0
+  "items": [
+    {
+      "id": 0,
+      "externalLink": "string",
+      "socialPostLink": "string",
+      "photoURL": "string",
+      "userID": "string",
+      "displayID": 0
+    }
   ]
 }
 
@@ -862,11 +615,11 @@ registration
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
 |id|integer(int64)|true|none|none|
-|username|string|true|none|none|
+|userID|string|true|none|none|
 |title|string|true|none|none|
 |description|string|true|none|none|
 |photoURL|string|true|none|none|
-|itemIDs|[integer]|true|none|none|
+|items|[[GetItem](#schemagetitem)]|true|none|none|
 
 <h2 id="tocS_PostDisplay">PostDisplay</h2>
 <!-- backwards compatibility -->
@@ -925,7 +678,7 @@ registration
   "externalLink": "string",
   "socialPostLink": "string",
   "photoURL": "string",
-  "username": "string",
+  "userID": "string",
   "displayID": 0
 }
 
@@ -939,7 +692,7 @@ registration
 |externalLink|string|true|none|none|
 |socialPostLink|string|true|none|none|
 |photoURL|string|true|none|none|
-|username|string|true|none|none|
+|userID|string|true|none|none|
 |displayID|integer(int64)|true|none|none|
 
 <h2 id="tocS_PostItem">PostItem</h2>
@@ -951,8 +704,8 @@ registration
 
 ```json
 {
-  "externalLink": "string",
-  "socialPostLink": "string"
+  "displayID": 0,
+  "externalLink": "string"
 }
 
 ```
@@ -961,8 +714,8 @@ registration
 
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
+|displayID|integer(int64)|true|none|none|
 |externalLink|string|true|none|none|
-|socialPostLink|string|true|none|none|
 
 <h2 id="tocS_PatchItem">PatchItem</h2>
 <!-- backwards compatibility -->
