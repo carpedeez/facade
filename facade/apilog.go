@@ -10,23 +10,23 @@ import (
 	"github.com/rs/zerolog"
 )
 
-type StructuredLogger struct {
+type apiLogger struct {
 	Logger zerolog.Logger
 }
 
-type StructuredLoggerEntry struct {
+type apiLoggerEntry struct {
 	Logger *zerolog.Event
 }
 
-func NewStructuredLogger(logger zerolog.Logger) func(next http.Handler) http.Handler {
-	return middleware.RequestLogger(&StructuredLogger{logger})
+func newAPILogger(logger zerolog.Logger) func(next http.Handler) http.Handler {
+	return middleware.RequestLogger(&apiLogger{logger})
 }
 
-func (l *StructuredLogger) NewLogEntry(r *http.Request) middleware.LogEntry {
-	entry := &StructuredLoggerEntry{Logger: l.Logger.Info()}
+func (l *apiLogger) NewLogEntry(r *http.Request) middleware.LogEntry {
+	entry := &apiLoggerEntry{Logger: l.Logger.Info()}
 
 	if rec := recover(); rec != nil {
-		entry = &StructuredLoggerEntry{Logger: l.Logger.Error()}
+		entry = &apiLoggerEntry{Logger: l.Logger.Error()}
 	}
 
 	scheme := "http"
@@ -39,6 +39,7 @@ func (l *StructuredLogger) NewLogEntry(r *http.Request) middleware.LogEntry {
 	if reqID := middleware.GetReqID(r.Context()); reqID != "" {
 		logFields["req_id"] = reqID
 	}
+
 	logFields["req_method"] = r.Method
 	logFields["req_address"] = r.RemoteAddr
 	logFields["req_uri"] = fmt.Sprintf("%s://%s%s", scheme, r.Host, r.RequestURI)
@@ -47,7 +48,7 @@ func (l *StructuredLogger) NewLogEntry(r *http.Request) middleware.LogEntry {
 	return entry
 }
 
-func (l *StructuredLoggerEntry) Write(status, bytes int, header http.Header, elapsed time.Duration, extra any) {
+func (l *apiLoggerEntry) Write(status, bytes int, header http.Header, elapsed time.Duration, extra any) {
 	l.Logger = l.Logger.Fields(map[string]interface{}{
 		"res_length":       bytes,
 		"res_status":       status,
@@ -56,7 +57,7 @@ func (l *StructuredLoggerEntry) Write(status, bytes int, header http.Header, ela
 	l.Logger.Msg("")
 }
 
-func (l *StructuredLoggerEntry) Panic(v interface{}, stack []byte) {
+func (l *apiLoggerEntry) Panic(v interface{}, stack []byte) {
 	l.Logger = l.Logger.Fields(map[string]interface{}{
 		"stack": string(stack),
 		"panic": fmt.Sprintf("%+v", v),

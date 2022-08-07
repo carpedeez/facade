@@ -30,12 +30,12 @@ func Run(wg *sync.WaitGroup, ctx context.Context, log zerolog.Logger, c config.F
 	f := facade{q, o, log}
 
 	r := chi.NewRouter()
-	r.Use(middleware.RealIP, middleware.RequestID, middleware.Recoverer, NewStructuredLogger(log))
+	r.Use(middleware.RealIP, middleware.RequestID, middleware.Recoverer, newAPILogger(log))
 
 	handler := Handler(f, WithRouter(r), WithMiddleware("session", f.sessionMiddleware))
 
 	go func() {
-		log.Info().Msgf("listening on port :%s", c.Port)
+		log.Info().Msgf("listening on http://localhost:%s/", c.Port)
 		err := http.ListenAndServe(":"+c.Port, handler)
 		if err != nil {
 			log.Panic().Msg("failed to start listening and serving api")

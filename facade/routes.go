@@ -13,7 +13,6 @@ func (f facade) Me(w http.ResponseWriter, r *http.Request) *Response {
 	cookies := r.Header.Get("Cookie")
 	s, _, err := f.ory.V0alpha2Api.ToSession(r.Context()).Cookie(cookies).Execute()
 	if (err != nil || s == nil) || !*s.Active {
-		f.log.Debug().Msg("xd")
 		return ErrorResponse("Unauthorized", http.StatusUnauthorized)
 	}
 	return &Response{ // switched to this instead of the MeJSON200Response because it's wrong.
