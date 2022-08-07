@@ -9,8 +9,6 @@ require (
 	github.com/go-chi/chi v1.5.4
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-chi/render v1.0.2
-	github.com/go-logr/logr v1.2.2
-	github.com/go-logr/zerologr v1.2.2
 	github.com/jackc/pgx/v4 v4.16.1
 	github.com/ory/client-go v0.2.0-alpha.4
 	github.com/rs/zerolog v1.27.0
