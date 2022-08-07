@@ -4,32 +4,28 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+	"strconv"
 )
 
 // Get Session
 // (GET /@me)
 func (f facade) Me(w http.ResponseWriter, r *http.Request) *Response {
 	cookies := r.Header.Get("Cookie")
-
 	s, _, err := f.ory.V0alpha2Api.ToSession(r.Context()).Cookie(cookies).Execute()
 	if (err != nil || s == nil) || !*s.Active {
+		f.log.Debug().Msg("xd")
 		return ErrorResponse("Unauthorized", http.StatusUnauthorized)
 	}
-	b, err := json.Marshal(s)
-	if err != nil {
-		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
+	return &Response{ // switched to this instead of the MeJSON200Response because it's wrong.
+		body: s, // fix open api schema when identity schema is decided
+		Code: 200,
 	}
-	ss := Session{}
-	json.Unmarshal(b, &ss)
-	if err != nil {
-		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
-	}
-	return MeJSON200Response(ss)
 }
 
 // Upload file
 // (POST /assets)
 func (f facade) UploadFile(w http.ResponseWriter, r *http.Request) *Response {
+	// we will probably want 201 with the Location header
 	return UploadFileJSON200Response("google.com")
 }
 
@@ -37,38 +33,31 @@ func (f facade) UploadFile(w http.ResponseWriter, r *http.Request) *Response {
 // (POST /d)
 func (f facade) CreateDisplay(w http.ResponseWriter, r *http.Request) *Response {
 	s := getSession(r.Context())
-	display := PostDisplay{}
-	err := json.NewDecoder(r.Body).Decode(&display)
+
+	pd := PostDisplay{}
+	err := json.NewDecoder(r.Body).Decode(&pd)
 	if err != nil {
 		return ErrorResponse("Bad Request", http.StatusBadRequest)
 	}
-	if display.Description == "" || display.Title == "" {
+
+	if pd.Description == "" || pd.Title == "" {
 		return ErrorResponse("Bad Request", http.StatusBadRequest)
 	}
-	id, err := f.querier.CreateDisplay(s.Identity.Id, display.Title, display.Description) // should we respond with the serial number and redirect them? should we respond with the whole object?
+
+	d, err := f.querier.CreateDisplay(s.Identity.Id, pd.Title, pd.Description) // should we respond with the serial number and redirect them? should we respond with the whole object?
 	if err != nil {
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
 	}
 
-	return CreateDisplayJSON200Response(id)
-}
-
-// Delete display
-// (DELETE /d/{displayID})
-func (f facade) DeleteDisplay(w http.ResponseWriter, r *http.Request, displayID int64) *Response {
-	s := getSession(r.Context())
-	isDisplayOwner, err := f.querier.IsDisplayOwner(s.Identity.Id, displayID)
-	if err != nil {
-		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
-	}
-	if !isDisplayOwner {
-		return ErrorResponse("Forbidden", http.StatusForbidden)
-	}
-	err = f.querier.DeleteDisplay(displayID)
-	if err != nil {
-		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
-	}
-	return NoContentResponse()
+	w.Header().Add("Location", "/d/"+strconv.Itoa(int(d.ID)))
+	return CreateDisplayJSON201Response(GetDisplay{
+		Description: d.Description,
+		ID:          d.ID,
+		Items:       []GetItem{},
+		PhotoURL:    d.PhotoURL,
+		Title:       d.Title,
+		UserID:      d.UserID,
+	})
 }
 
 // Get display
@@ -81,25 +70,26 @@ func (f facade) GetDisplay(w http.ResponseWriter, r *http.Request, displayID int
 		}
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
 	}
-	items, err := f.querier.GetItems(displayID)
+	is, err := f.querier.GetItems(displayID)
 	if err != nil {
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
 	}
-	displayItems := make([]GetItem, len(items))
-	for _, i := range items {
-		displayItems = append(displayItems, GetItem{
-			DisplayID:      displayID,
+	dItems := make([]GetItem, len(is))
+	for _, i := range is {
+		dItems = append(dItems, GetItem{
+			DisplayID:      i.DisplayID,
 			ExternalLink:   i.ExternalLink,
 			ID:             i.ID,
 			PhotoURL:       i.PhotoURL,
 			SocialPostLink: i.SocialPostLink,
-			UserID:         d.UserID,
+			UserID:         i.UserID,
 		})
 	}
+
 	return GetDisplayJSON200Response(GetDisplay{
 		Description: d.Description,
-		ID:          displayID,
-		Items:       displayItems,
+		ID:          d.ID,
+		Items:       dItems,
 		PhotoURL:    d.PhotoURL,
 		Title:       d.Title,
 		UserID:      d.UserID,
@@ -110,6 +100,16 @@ func (f facade) GetDisplay(w http.ResponseWriter, r *http.Request, displayID int
 // (PATCH /d/{displayID})
 func (f facade) UpdateDisplay(w http.ResponseWriter, r *http.Request, displayID int64) *Response {
 	s := getSession(r.Context())
+
+	pd := PatchDisplay{}
+	err := json.NewDecoder(r.Body).Decode(&pd)
+	if err != nil {
+		return ErrorResponse("Bad Request", http.StatusBadRequest)
+	}
+	if pd.Description == nil && pd.Title == nil {
+		return ErrorResponse("Bad Request", http.StatusBadRequest)
+	}
+
 	isDisplayOwner, err := f.querier.IsDisplayOwner(s.Identity.Id, displayID)
 	if err != nil {
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
@@ -117,95 +117,95 @@ func (f facade) UpdateDisplay(w http.ResponseWriter, r *http.Request, displayID 
 	if !isDisplayOwner {
 		return ErrorResponse("Forbidden", http.StatusForbidden)
 	}
-	display := PatchDisplay{}
-	err = json.NewDecoder(r.Body).Decode(&display)
-	if err != nil {
-		return ErrorResponse("Bad Request", http.StatusBadRequest)
-	}
-	if display.Description == nil && display.Title == nil {
-		return ErrorResponse("Bad Request", http.StatusBadRequest)
-	}
-	updatedDisplay, err := f.querier.UpdateDisplay(displayID, display.Title, display.Description) // should we respond with the serial number and redirect them? should we respond with the whole object?
+
+	d, err := f.querier.UpdateDisplay(displayID, pd.Title, pd.Description)
 	if err != nil {
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
 	}
 
-	items, err := f.querier.GetItems(displayID)
+	is, err := f.querier.GetItems(displayID)
 	if err != nil {
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
 	}
-	displayItems := make([]GetItem, len(items))
-	for _, i := range items {
-		displayItems = append(displayItems, GetItem{
-			DisplayID:      displayID,
+	dItems := make([]GetItem, len(is))
+	for _, i := range is {
+		dItems = append(dItems, GetItem{
+			DisplayID:      i.DisplayID,
 			ExternalLink:   i.ExternalLink,
 			ID:             i.ID,
 			PhotoURL:       i.PhotoURL,
 			SocialPostLink: i.SocialPostLink,
-			UserID:         s.Identity.Id,
+			UserID:         i.UserID,
 		})
 	}
 
 	return GetDisplayJSON200Response(GetDisplay{
-		Description: updatedDisplay.Description,
-		ID:          displayID,
-		Items:       displayItems,
-		PhotoURL:    updatedDisplay.PhotoURL,
-		Title:       updatedDisplay.Title,
-		UserID:      updatedDisplay.UserID,
+		Description: d.Description,
+		ID:          d.ID,
+		Items:       dItems,
+		PhotoURL:    d.PhotoURL,
+		Title:       d.Title,
+		UserID:      d.UserID,
 	})
 }
 
-// Create Item
-// (POST /i)
-func (f facade) CreateItem(w http.ResponseWriter, r *http.Request) *Response {
+// Delete display
+// (DELETE /d/{displayID})
+func (f facade) DeleteDisplay(w http.ResponseWriter, r *http.Request, displayID int64) *Response {
 	s := getSession(r.Context())
-	item := PostItem{}
-	err := json.NewDecoder(r.Body).Decode(&item)
-	if err != nil {
-		return ErrorResponse("Bad Request", http.StatusBadRequest)
-	}
-	if item.ExternalLink == "" {
-		return ErrorResponse("Bad Request", http.StatusBadRequest)
-	}
 
-	isDisplayOwner, err := f.querier.IsDisplayOwner(s.Identity.Id, item.DisplayID)
+	isDisplayOwner, err := f.querier.IsDisplayOwner(s.Identity.Id, displayID)
 	if err != nil {
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
 	}
 	if !isDisplayOwner {
 		return ErrorResponse("Forbidden", http.StatusForbidden)
 	}
-	createdItem, err := f.querier.CreateItem(s.Identity.Id, item.DisplayID, item.ExternalLink) // should we respond with the serial number and redirect them? should we respond with the whole object?
+
+	err = f.querier.DeleteDisplay(displayID)
 	if err != nil {
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
 	}
-	return CreateItemJSON200Response(GetItem{
-		DisplayID:      item.DisplayID,
-		ExternalLink:   item.ExternalLink,
-		ID:             createdItem.ID,
-		PhotoURL:       createdItem.PhotoURL,
-		SocialPostLink: createdItem.SocialPostLink,
-		UserID:         createdItem.UserID,
-	})
+
+	return NoContentResponse()
 }
 
-// Delete item
-// (DELETE /i/{itemID})
-func (f facade) DeleteItem(w http.ResponseWriter, r *http.Request, itemID int64) *Response {
+// Create Item
+// (POST /i)
+func (f facade) CreateItem(w http.ResponseWriter, r *http.Request) *Response {
 	s := getSession(r.Context())
-	isItemOwner, err := f.querier.IsItemOwner(s.Identity.Id, itemID)
+
+	pi := PostItem{}
+	err := json.NewDecoder(r.Body).Decode(&pi)
+	if err != nil {
+		return ErrorResponse("Bad Request", http.StatusBadRequest)
+	}
+	if pi.ExternalLink == "" {
+		return ErrorResponse("Bad Request", http.StatusBadRequest)
+	}
+
+	isDisplayOwner, err := f.querier.IsDisplayOwner(s.Identity.Id, pi.DisplayID)
 	if err != nil {
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
 	}
-	if !isItemOwner {
+	if !isDisplayOwner {
 		return ErrorResponse("Forbidden", http.StatusForbidden)
 	}
-	err = f.querier.DeleteItem(itemID)
+
+	i, err := f.querier.CreateItem(s.Identity.Id, pi.DisplayID, pi.ExternalLink) // should we respond with the serial number and redirect them? should we respond with the whole object?
 	if err != nil {
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
 	}
-	return NoContentResponse()
+
+	w.Header().Add("Location", "/i/"+strconv.Itoa(int(i.ID)))
+	return CreateItemJSON201Response(GetItem{
+		DisplayID:      i.DisplayID,
+		ExternalLink:   i.ExternalLink,
+		ID:             i.ID,
+		PhotoURL:       i.PhotoURL,
+		SocialPostLink: i.SocialPostLink,
+		UserID:         i.UserID,
+	})
 }
 
 // Get item
@@ -218,10 +218,11 @@ func (f facade) GetItem(w http.ResponseWriter, r *http.Request, itemID int64) *R
 		}
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
 	}
+
 	return GetItemJSON200Response(GetItem{
-		DisplayID:      int64(i.DisplayID),
+		DisplayID:      i.DisplayID,
 		ExternalLink:   i.ExternalLink,
-		ID:             itemID,
+		ID:             i.ID,
 		PhotoURL:       i.PhotoURL,
 		SocialPostLink: i.SocialPostLink,
 		UserID:         i.UserID,
@@ -232,6 +233,16 @@ func (f facade) GetItem(w http.ResponseWriter, r *http.Request, itemID int64) *R
 // (PATCH /i/{itemID})
 func (f facade) UpdateItem(w http.ResponseWriter, r *http.Request, itemID int64) *Response {
 	s := getSession(r.Context())
+
+	pi := PatchItem{}
+	err := json.NewDecoder(r.Body).Decode(&pi)
+	if err != nil {
+		return ErrorResponse("Bad Request", http.StatusBadRequest)
+	}
+	if pi.ExternalLink == nil && pi.PhotoURL == nil && pi.SocialPostLink == nil {
+		return ErrorResponse("Bad Request", http.StatusBadRequest)
+	}
+
 	isItemOwner, err := f.querier.IsItemOwner(s.Identity.Id, itemID)
 	if err != nil {
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
@@ -239,39 +250,47 @@ func (f facade) UpdateItem(w http.ResponseWriter, r *http.Request, itemID int64)
 	if !isItemOwner {
 		return ErrorResponse("Forbidden", http.StatusForbidden)
 	}
-	item := PatchItem{}
-	err = json.NewDecoder(r.Body).Decode(&item)
-	if err != nil {
-		return ErrorResponse("Bad Request", http.StatusBadRequest)
-	}
-	if item.ExternalLink == nil && item.PhotoURL == nil && item.SocialPostLink == nil {
-		return ErrorResponse("Bad Request", http.StatusBadRequest)
-	}
-	updatedItem, err := f.querier.UpdateItem(itemID, item.ExternalLink, item.SocialPostLink, item.PhotoURL)
+
+	i, err := f.querier.UpdateItem(itemID, pi.ExternalLink, pi.SocialPostLink, pi.PhotoURL)
 	if err != nil {
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
 	}
+
 	return UpdateItemJSON200Response(GetItem{
-		DisplayID:      updatedItem.DisplayID,
-		ExternalLink:   updatedItem.ExternalLink,
-		ID:             itemID,
-		PhotoURL:       updatedItem.PhotoURL,
-		SocialPostLink: updatedItem.SocialPostLink,
-		UserID:         updatedItem.UserID,
+		DisplayID:      i.DisplayID,
+		ExternalLink:   i.ExternalLink,
+		ID:             i.ID,
+		PhotoURL:       i.PhotoURL,
+		SocialPostLink: i.SocialPostLink,
+		UserID:         i.UserID,
 	})
 }
 
-func ErrorResponse(message string, code int) *Response {
-	b, err := json.Marshal(Error{Message: message, Code: int32(code)})
+// Delete item
+// (DELETE /i/{itemID})
+func (f facade) DeleteItem(w http.ResponseWriter, r *http.Request, itemID int64) *Response {
+	s := getSession(r.Context())
+
+	isItemOwner, err := f.querier.IsItemOwner(s.Identity.Id, itemID)
 	if err != nil {
-		return &Response{
-			Code: http.StatusInternalServerError,
-			body: "Internal Server Error",
-		}
+		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
 	}
+	if !isItemOwner {
+		return ErrorResponse("Forbidden", http.StatusForbidden)
+	}
+
+	err = f.querier.DeleteItem(itemID)
+	if err != nil {
+		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
+	}
+
+	return NoContentResponse()
+}
+
+func ErrorResponse(message string, code int) *Response {
 	return &Response{
 		Code: code,
-		body: b,
+		body: Error{Message: message, Code: int32(code)},
 	}
 }
 

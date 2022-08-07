@@ -4,7 +4,7 @@ CREATE TABLE displays
     user_id VARCHAR NOT NULL,
 
     title VARCHAR NOT NULL,
-    descr VARCHAR NOT NULL, --description
+    descri VARCHAR NOT NULL, --description
     photo_url VARCHAR NOT NULL
 );
 

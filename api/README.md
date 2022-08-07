@@ -150,17 +150,33 @@ This operation does not require authentication
 
 > Example responses
 
-> 200 Response
+> 201 Response
 
 ```json
-0
+{
+  "id": 0,
+  "userID": "string",
+  "title": "string",
+  "description": "string",
+  "photoURL": "string",
+  "items": [
+    {
+      "id": 0,
+      "externalLink": "string",
+      "socialPostLink": "string",
+      "photoURL": "string",
+      "userID": "string",
+      "displayID": 0
+    }
+  ]
+}
 ```
 
 <h3 id="createdisplay-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|integer|
+|201|[Created](https://tools.ietf.org/html/rfc7231#section-6.3.2)|Created|[GetDisplay](#schemagetdisplay)|
 |400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request|[Error](#schemaerror)|
 
 <aside class="success">
@@ -323,7 +339,7 @@ This operation does not require authentication
 
 > Example responses
 
-> 200 Response
+> 201 Response
 
 ```json
 {
@@ -340,7 +356,7 @@ This operation does not require authentication
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|[GetItem](#schemagetitem)|
+|201|[Created](https://tools.ietf.org/html/rfc7231#section-6.3.2)|Created|[GetItem](#schemagetitem)|
 |400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|Bad Request|[Error](#schemaerror)|
 
 <aside class="success">

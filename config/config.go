@@ -24,7 +24,10 @@ type DBConfig struct {
 	Database string `yaml:"database"`
 }
 
-type LogConfig struct{}
+type LogConfig struct {
+	Level  int8 `yaml:"level"`
+	Pretty bool `yaml:"pretty"`
+}
 
 func GetConfig() (Config, error) {
 	b, err := os.ReadFile("config.yaml")

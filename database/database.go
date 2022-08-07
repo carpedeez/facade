@@ -21,6 +21,10 @@ func OpenPostgres(ctx context.Context, c config.DBConfig) (Querier, error) {
 		return nil, fmt.Errorf("failed to ping database connection: %v", err)
 	}
 
-	q := querierImpl{DB: db}
+	q := postgresQuerier{DB: db}
 	return q, nil
+}
+
+func (q postgresQuerier) Close() error {
+	return q.DB.Close()
 }

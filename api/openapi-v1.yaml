@@ -56,13 +56,12 @@ paths:
       summary: Create display
       operationId: createDisplay
       responses:
-        '200':
-          description: OK
+        '201':
+          description: Created
           content:
             application/json:
               schema:
-                type: integer
-                format: int64
+                $ref: '#/components/schemas/GetDisplay'
         '400':
           description: Bad Request
           content:
@@ -146,8 +145,8 @@ paths:
             schema:
               $ref: '#/components/schemas/PostItem'
       responses:
-        '200':
-          description: OK
+        '201':
+          description: Created
           content:
             application/json:
               schema:

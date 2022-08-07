@@ -5,14 +5,17 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"sync"
 
 	"github.com/carpedeez/store/config"
 	"github.com/carpedeez/store/database"
 	"github.com/carpedeez/store/facade"
+	"github.com/carpedeez/store/logger"
 )
 
 func main() {
 	ctx, _ := signal.NotifyContext(context.Background(), os.Interrupt)
+	wg := &sync.WaitGroup{}
 
 	c, err := config.GetConfig()
 	if err != nil {
@@ -20,13 +23,21 @@ func main() {
 		os.Exit(1)
 	}
 
+	log := logger.GetLogger(c.LogConfig)
+
 	q, err := database.OpenPostgres(ctx, c.DBConfig)
 	if err != nil {
-		fmt.Printf("failed to open database: %v\n", err)
-		os.Exit(1)
+		log.Fatal().Msgf("failed to open database: %v\n", err)
 	}
+	defer func() {
+		err = q.Close()
+		if err != nil {
+			log.Error().Err(err).Msg("error closing database")
+		}
+	}()
 
-	go facade.Run(c.FacadeConfig, q)
+	wg.Add(1)
+	go facade.Run(wg, ctx, log, c.FacadeConfig, q)
 
-	<-ctx.Done()
+	wg.Wait()
 }
