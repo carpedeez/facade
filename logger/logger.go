@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/carpedeez/store/config"
+	"github.com/carpedeez/facade/config"
 	"github.com/rs/zerolog"
 )
 

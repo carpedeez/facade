@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/carpedeez/store/config"
-	"github.com/carpedeez/store/database"
+	"github.com/carpedeez/facade/config"
+	"github.com/carpedeez/facade/database"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 	ory "github.com/ory/client-go"

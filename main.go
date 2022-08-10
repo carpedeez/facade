@@ -7,10 +7,10 @@ import (
 	"os/signal"
 	"sync"
 
-	"github.com/carpedeez/store/config"
-	"github.com/carpedeez/store/database"
-	"github.com/carpedeez/store/facade"
-	"github.com/carpedeez/store/logger"
+	"github.com/carpedeez/facade/config"
+	"github.com/carpedeez/facade/database"
+	"github.com/carpedeez/facade/facade"
+	"github.com/carpedeez/facade/logger"
 )
 
 func main() {

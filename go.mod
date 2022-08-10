@@ -1,4 +1,4 @@
-module github.com/carpedeez/store
+module github.com/carpedeez/facade
 
 go 1.18
 

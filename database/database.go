@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/carpedeez/store/config"
+	"github.com/carpedeez/facade/config"
 	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
