@@ -4,7 +4,9 @@ info:
   description: This is the public API for Facade.
   version: 0.0.1
 servers:
-  - url: https://facadeapp.dev/v0
+  - url: https://api.facadeapp.dev/v0
+    description: facade api
+  # facadeapp.dev will serve static webpages, auth.facadeapp.dev will handle authentication
 paths:
   /@me:
     get:
@@ -244,8 +246,8 @@ paths:
             type: integer
             format: int64
       responses:
-        '200':
-          description: OK       
+        '204':
+          description: No Content       
 components:
   schemas:
     Session:

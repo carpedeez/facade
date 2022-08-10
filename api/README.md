@@ -8,7 +8,7 @@ This is the public API for Facade.
 
 Base URLs:
 
-* <a href="https://facadeapp.dev/v0">https://facadeapp.dev/v0</a>
+* <a href="https://api.facadeapp.dev/v0">https://api.facadeapp.dev/v0</a>
 
 <h1 id="facade-default">Default</h1>
 
@@ -474,7 +474,7 @@ This operation does not require authentication
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|OK|None|
+|204|[No Content](https://tools.ietf.org/html/rfc7231#section-6.3.5)|No Content|None|
 
 <aside class="success">
 This operation does not require authentication
