@@ -7,11 +7,11 @@ import (
 	ory "github.com/ory/client-go"
 )
 
-type requestHeader string
+type requestCtxKey string
 
 const (
-	requestCookies requestHeader = "req.cookies"
-	requestSession requestHeader = "req.session"
+	requestCookies requestCtxKey = "req.cookies"
+	requestSession requestCtxKey = "req.session"
 )
 
 // save the cookies for any upstream calls to the Ory apis

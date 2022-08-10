@@ -68,7 +68,6 @@ type PostDisplay struct {
 
 // PostItem defines model for PostItem.
 type PostItem struct {
-	DisplayID    int64  `json:"displayID"`
 	ExternalLink string `json:"externalLink"`
 }
 
@@ -357,17 +356,17 @@ type ServerInterface interface {
 	// (PATCH /d/{displayID})
 	UpdateDisplay(w http.ResponseWriter, r *http.Request, displayID int64) *Response
 	// Create Item
-	// (POST /i)
-	CreateItem(w http.ResponseWriter, r *http.Request) *Response
+	// (POST /d/{displayID}/i)
+	CreateItem(w http.ResponseWriter, r *http.Request, displayID int64) *Response
 	// Delete item
-	// (DELETE /i/{itemID})
-	DeleteItem(w http.ResponseWriter, r *http.Request, itemID int64) *Response
+	// (DELETE /d/{displayID}/i/{itemID})
+	DeleteItem(w http.ResponseWriter, r *http.Request, displayID int64, itemID int64) *Response
 	// Get item
-	// (GET /i/{itemID})
-	GetItem(w http.ResponseWriter, r *http.Request, itemID int64) *Response
+	// (GET /d/{displayID}/i/{itemID})
+	GetItem(w http.ResponseWriter, r *http.Request, displayID int64, itemID int64) *Response
 	// Update item
-	// (PATCH /i/{itemID})
-	UpdateItem(w http.ResponseWriter, r *http.Request, itemID int64) *Response
+	// (PATCH /d/{displayID}/i/{itemID})
+	UpdateItem(w http.ResponseWriter, r *http.Request, displayID int64, itemID int64) *Response
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -525,8 +524,16 @@ func (siw *ServerInterfaceWrapper) UpdateDisplay(w http.ResponseWriter, r *http.
 func (siw *ServerInterfaceWrapper) CreateItem(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	// ------------- Path parameter "displayID" -------------
+	var displayID int64
+
+	if err := runtime.BindStyledParameter("simple", false, "displayID", chi.URLParam(r, "displayID"), &displayID); err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "displayID"})
+		return
+	}
+
 	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp := siw.Handler.CreateItem(w, r)
+		resp := siw.Handler.CreateItem(w, r, displayID)
 		if resp != nil {
 			if resp.body != nil {
 				render.Render(w, r, resp)
@@ -546,6 +553,14 @@ func (siw *ServerInterfaceWrapper) CreateItem(w http.ResponseWriter, r *http.Req
 func (siw *ServerInterfaceWrapper) DeleteItem(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	// ------------- Path parameter "displayID" -------------
+	var displayID int64
+
+	if err := runtime.BindStyledParameter("simple", false, "displayID", chi.URLParam(r, "displayID"), &displayID); err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "displayID"})
+		return
+	}
+
 	// ------------- Path parameter "itemID" -------------
 	var itemID int64
 
@@ -555,7 +570,7 @@ func (siw *ServerInterfaceWrapper) DeleteItem(w http.ResponseWriter, r *http.Req
 	}
 
 	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp := siw.Handler.DeleteItem(w, r, itemID)
+		resp := siw.Handler.DeleteItem(w, r, displayID, itemID)
 		if resp != nil {
 			if resp.body != nil {
 				render.Render(w, r, resp)
@@ -575,6 +590,14 @@ func (siw *ServerInterfaceWrapper) DeleteItem(w http.ResponseWriter, r *http.Req
 func (siw *ServerInterfaceWrapper) GetItem(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	// ------------- Path parameter "displayID" -------------
+	var displayID int64
+
+	if err := runtime.BindStyledParameter("simple", false, "displayID", chi.URLParam(r, "displayID"), &displayID); err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "displayID"})
+		return
+	}
+
 	// ------------- Path parameter "itemID" -------------
 	var itemID int64
 
@@ -584,7 +607,7 @@ func (siw *ServerInterfaceWrapper) GetItem(w http.ResponseWriter, r *http.Reques
 	}
 
 	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp := siw.Handler.GetItem(w, r, itemID)
+		resp := siw.Handler.GetItem(w, r, displayID, itemID)
 		if resp != nil {
 			if resp.body != nil {
 				render.Render(w, r, resp)
@@ -601,6 +624,14 @@ func (siw *ServerInterfaceWrapper) GetItem(w http.ResponseWriter, r *http.Reques
 func (siw *ServerInterfaceWrapper) UpdateItem(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	// ------------- Path parameter "displayID" -------------
+	var displayID int64
+
+	if err := runtime.BindStyledParameter("simple", false, "displayID", chi.URLParam(r, "displayID"), &displayID); err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "displayID"})
+		return
+	}
+
 	// ------------- Path parameter "itemID" -------------
 	var itemID int64
 
@@ -610,7 +641,7 @@ func (siw *ServerInterfaceWrapper) UpdateItem(w http.ResponseWriter, r *http.Req
 	}
 
 	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp := siw.Handler.UpdateItem(w, r, itemID)
+		resp := siw.Handler.UpdateItem(w, r, displayID, itemID)
 		if resp != nil {
 			if resp.body != nil {
 				render.Render(w, r, resp)
@@ -757,10 +788,10 @@ func Handler(si ServerInterface, opts ...ServerOption) http.Handler {
 		r.Delete("/d/{displayID}", wrapper.DeleteDisplay)
 		r.Get("/d/{displayID}", wrapper.GetDisplay)
 		r.Patch("/d/{displayID}", wrapper.UpdateDisplay)
-		r.Post("/i", wrapper.CreateItem)
-		r.Delete("/i/{itemID}", wrapper.DeleteItem)
-		r.Get("/i/{itemID}", wrapper.GetItem)
-		r.Patch("/i/{itemID}", wrapper.UpdateItem)
+		r.Post("/d/{displayID}/i", wrapper.CreateItem)
+		r.Delete("/d/{displayID}/i/{itemID}", wrapper.DeleteItem)
+		r.Get("/d/{displayID}/i/{itemID}", wrapper.GetItem)
+		r.Patch("/d/{displayID}/i/{itemID}", wrapper.UpdateItem)
 
 	})
 	return r
@@ -799,26 +830,26 @@ func WithErrorHandler(handler func(w http.ResponseWriter, r *http.Request, err e
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

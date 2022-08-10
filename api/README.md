@@ -318,7 +318,7 @@ This operation does not require authentication
 
 <a id="opIdcreateItem"></a>
 
-`POST /i`
+`POST /d/{displayID}/i`
 
 *Create Item*
 
@@ -326,7 +326,6 @@ This operation does not require authentication
 
 ```json
 {
-  "displayID": 0,
   "externalLink": "string"
 }
 ```
@@ -335,6 +334,7 @@ This operation does not require authentication
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
+|displayID|path|integer(int64)|true|none|
 |body|body|[PostItem](#schemapostitem)|true|none|
 
 > Example responses
@@ -367,7 +367,7 @@ This operation does not require authentication
 
 <a id="opIdgetItem"></a>
 
-`GET /i/{itemID}`
+`GET /d/{displayID}/i/{itemID}`
 
 *Get item*
 
@@ -375,6 +375,7 @@ This operation does not require authentication
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
+|displayID|path|integer(int64)|true|none|
 |itemID|path|integer(int64)|true|none|
 
 > Example responses
@@ -406,7 +407,7 @@ This operation does not require authentication
 
 <a id="opIdupdateItem"></a>
 
-`PATCH /i/{itemID}`
+`PATCH /d/{displayID}/i/{itemID}`
 
 *Update item*
 
@@ -424,6 +425,7 @@ This operation does not require authentication
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
+|displayID|path|integer(int64)|true|none|
 |itemID|path|integer(int64)|true|none|
 |body|body|[PatchItem](#schemapatchitem)|true|none|
 
@@ -457,7 +459,7 @@ This operation does not require authentication
 
 <a id="opIddeleteItem"></a>
 
-`DELETE /i/{itemID}`
+`DELETE /d/{displayID}/i/{itemID}`
 
 *Delete item*
 
@@ -465,6 +467,7 @@ This operation does not require authentication
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
+|displayID|path|integer(int64)|true|none|
 |itemID|path|integer(int64)|true|none|
 
 <h3 id="deleteitem-responses">Responses</h3>
@@ -720,7 +723,6 @@ This operation does not require authentication
 
 ```json
 {
-  "displayID": 0,
   "externalLink": "string"
 }
 
@@ -730,7 +732,6 @@ This operation does not require authentication
 
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
-|displayID|integer(int64)|true|none|none|
 |externalLink|string|true|none|none|
 
 <h2 id="tocS_PatchItem">PatchItem</h2>

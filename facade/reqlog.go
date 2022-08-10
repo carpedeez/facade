@@ -15,18 +15,18 @@ type apiLogger struct {
 }
 
 type apiLoggerEntry struct {
-	Logger *zerolog.Event
+	event *zerolog.Event
 }
 
-func newAPILogger(logger zerolog.Logger) func(next http.Handler) http.Handler {
+func newRequestLogger(logger zerolog.Logger) func(next http.Handler) http.Handler {
 	return middleware.RequestLogger(&apiLogger{logger})
 }
 
 func (l *apiLogger) NewLogEntry(r *http.Request) middleware.LogEntry {
-	entry := &apiLoggerEntry{Logger: l.Logger.Info()}
+	entry := &apiLoggerEntry{event: l.Logger.Info()}
 
 	if rec := recover(); rec != nil {
-		entry = &apiLoggerEntry{Logger: l.Logger.Error()}
+		entry = &apiLoggerEntry{event: l.Logger.Error()}
 	}
 
 	scheme := "http"
@@ -43,24 +43,23 @@ func (l *apiLogger) NewLogEntry(r *http.Request) middleware.LogEntry {
 	logFields["req_method"] = r.Method
 	logFields["req_address"] = r.RemoteAddr
 	logFields["req_uri"] = fmt.Sprintf("%s://%s%s", scheme, r.Host, r.RequestURI)
-	entry.Logger = entry.Logger.Fields(logFields)
+	entry.event = entry.event.Fields(logFields)
 
 	return entry
 }
 
 func (l *apiLoggerEntry) Write(status, bytes int, header http.Header, elapsed time.Duration, extra any) {
-	l.Logger = l.Logger.Fields(map[string]interface{}{
+	l.event.Fields(map[string]interface{}{
 		"res_length":       bytes,
 		"res_status":       status,
 		"res_time_elapsed": strconv.FormatFloat(float64(elapsed.Nanoseconds())/1000000.0, 'f', -1, 64) + "ms",
-	})
-	l.Logger.Msg("")
+	}).Msg("endpoint hit")
 }
 
 func (l *apiLoggerEntry) Panic(v interface{}, stack []byte) {
-	l.Logger = l.Logger.Fields(map[string]interface{}{
+	l.event = l.event.Fields(map[string]interface{}{
 		"stack": string(stack),
 		"panic": fmt.Sprintf("%+v", v),
 	})
-	l.Logger.Msg("request failed")
+	l.event.Msg("request failed")
 }

@@ -132,12 +132,19 @@ paths:
       responses:
         '204':
           description: No Content      
-  /i:
+  /d/{displayID}/i:
     x-go-middlewares:
       - session
     post:
       summary: Create Item
       operationId: createItem
+      parameters:
+        - name: displayID
+          required: true
+          in: path
+          schema:
+            type: integer
+            format: int64
       requestBody:
         required: true
         content:
@@ -157,11 +164,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'     
-  /i/{itemID}:
+  /d/{displayID}/i/{itemID}:
     get:
       summary: Get item
       operationId: getItem
       parameters:
+        - name: displayID
+          required: true
+          in: path
+          schema:
+            type: integer
+            format: int64
         - name: itemID
           required: true
           in: path
@@ -181,6 +194,12 @@ paths:
       summary: Update item
       operationId: updateItem
       parameters:
+        - name: displayID
+          required: true
+          in: path
+          schema:
+            type: integer
+            format: int64
         - name: itemID
           required: true
           in: path
@@ -212,6 +231,12 @@ paths:
       summary: Delete item
       operationId: deleteItem
       parameters:
+        - name: displayID
+          required: true
+          in: path
+          schema:
+            type: integer
+            format: int64
         - name: itemID
           required: true
           in: path
@@ -430,13 +455,9 @@ components:
     PostItem:
       type: object
       required:
-        - displayID
         - externalLink
       additionalProperties: false
       properties:
-        displayID:
-          type: integer
-          format: int64
         externalLink:
           type: string
     PatchItem:

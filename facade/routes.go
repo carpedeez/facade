@@ -3,6 +3,8 @@ package facade
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 )
@@ -36,15 +38,18 @@ func (f facade) CreateDisplay(w http.ResponseWriter, r *http.Request) *Response 
 	pd := PostDisplay{}
 	err := json.NewDecoder(r.Body).Decode(&pd)
 	if err != nil {
+		f.log.Error().Err(fmt.Errorf("failed to decode postdisplay body into a postdisplay: %w", err)).Msg("")
 		return ErrorResponse("Bad Request", http.StatusBadRequest)
 	}
 
 	if pd.Description == "" || pd.Title == "" {
+		f.log.Error().Err(fmt.Errorf("user did not provide either a title, description, or either: %w", err)).Msg("")
 		return ErrorResponse("Bad Request", http.StatusBadRequest)
 	}
 
 	d, err := f.querier.CreateDisplay(s.Identity.Id, pd.Title, pd.Description) // should we respond with the serial number and redirect them? should we respond with the whole object?
 	if err != nil {
+		f.log.Error().Err(fmt.Errorf("failed to create display in database: %w", err)).Msg("")
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
 	}
 
@@ -64,16 +69,18 @@ func (f facade) CreateDisplay(w http.ResponseWriter, r *http.Request) *Response 
 func (f facade) GetDisplay(w http.ResponseWriter, r *http.Request, displayID int64) *Response {
 	d, err := f.querier.GetDisplay(displayID)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		f.log.Error().Err(fmt.Errorf("failed to get display from database: %w", err)).Msg("")
+		if errors.Is(err, sql.ErrNoRows) {
 			return ErrorResponse("Not Found", http.StatusNotFound)
 		}
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
 	}
 	is, err := f.querier.GetItems(displayID)
 	if err != nil {
+		f.log.Error().Err(fmt.Errorf("failed to get items from database: %w", err)).Msg("")
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
 	}
-	dItems := make([]GetItem, len(is))
+	dItems := []GetItem{}
 	for _, i := range is {
 		dItems = append(dItems, GetItem{
 			DisplayID:      i.DisplayID,
@@ -103,30 +110,39 @@ func (f facade) UpdateDisplay(w http.ResponseWriter, r *http.Request, displayID 
 	pd := PatchDisplay{}
 	err := json.NewDecoder(r.Body).Decode(&pd)
 	if err != nil {
+		f.log.Error().Err(fmt.Errorf("failed to decode patchdisplay body into a patchdisplay: %w", err)).Msg("")
 		return ErrorResponse("Bad Request", http.StatusBadRequest)
 	}
 	if pd.Description == nil && pd.Title == nil {
+		f.log.Error().Err(fmt.Errorf("user did not provide either a title or description: %w", err)).Msg("")
 		return ErrorResponse("Bad Request", http.StatusBadRequest)
 	}
 
 	isDisplayOwner, err := f.querier.IsDisplayOwner(s.Identity.Id, displayID)
 	if err != nil {
+		f.log.Error().Err(fmt.Errorf("failed to check if user is display owner: %w", err)).Msg("")
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrorResponse("Not Found", http.StatusNotFound)
+		}
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
 	}
 	if !isDisplayOwner {
+		f.log.Error().Err(fmt.Errorf("user attempted to update a display they do not own: %w", err)).Msg("")
 		return ErrorResponse("Forbidden", http.StatusForbidden)
 	}
 
 	d, err := f.querier.UpdateDisplay(displayID, pd.Title, pd.Description)
 	if err != nil {
+		f.log.Error().Err(fmt.Errorf("failed to update display in database: %w", err)).Msg("")
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
 	}
 
 	is, err := f.querier.GetItems(displayID)
 	if err != nil {
+		f.log.Error().Err(fmt.Errorf("failed to get items from database: %w", err)).Msg("")
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
 	}
-	dItems := make([]GetItem, len(is))
+	dItems := []GetItem{}
 	for _, i := range is {
 		dItems = append(dItems, GetItem{
 			DisplayID:      i.DisplayID,
@@ -155,44 +171,62 @@ func (f facade) DeleteDisplay(w http.ResponseWriter, r *http.Request, displayID 
 
 	isDisplayOwner, err := f.querier.IsDisplayOwner(s.Identity.Id, displayID)
 	if err != nil {
+		f.log.Error().Err(fmt.Errorf("failed to check if user is display owner: %w", err)).Msg("")
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrorResponse("Not Found", http.StatusNotFound)
+		}
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
 	}
 	if !isDisplayOwner {
+		f.log.Error().Err(fmt.Errorf("user attempted to delete a display they do not own: %w", err)).Msg("")
 		return ErrorResponse("Forbidden", http.StatusForbidden)
 	}
 
-	err = f.querier.DeleteDisplay(displayID)
+	ok, err := f.querier.DeleteDisplay(displayID)
 	if err != nil {
+		f.log.Error().Err(fmt.Errorf("failed to delete display from database: %w", err)).Msg("")
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
+	}
+
+	if !ok {
+		return ErrorResponse("Not Found", http.StatusNotFound)
 	}
 
 	return NoContentResponse()
 }
 
 // Create Item
-// (POST /i)
-func (f facade) CreateItem(w http.ResponseWriter, r *http.Request) *Response {
+// (POST /d/{displayID}/i)
+func (f facade) CreateItem(w http.ResponseWriter, r *http.Request, displayID int64) *Response {
 	s := getSession(r.Context())
 
 	pi := PostItem{}
 	err := json.NewDecoder(r.Body).Decode(&pi)
 	if err != nil {
+		f.log.Error().Err(fmt.Errorf("failed to decode postitem body into a postitem: %w", err)).Msg("")
 		return ErrorResponse("Bad Request", http.StatusBadRequest)
 	}
 	if pi.ExternalLink == "" {
+		f.log.Error().Err(fmt.Errorf("user did not provide an external link: %w", err)).Msg("")
 		return ErrorResponse("Bad Request", http.StatusBadRequest)
 	}
 
-	isDisplayOwner, err := f.querier.IsDisplayOwner(s.Identity.Id, pi.DisplayID)
+	isDisplayOwner, err := f.querier.IsDisplayOwner(s.Identity.Id, displayID)
 	if err != nil {
+		f.log.Error().Err(fmt.Errorf("failed to check if user is display owner: %w", err)).Msg("")
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrorResponse("Not Found", http.StatusNotFound)
+		}
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
 	}
 	if !isDisplayOwner {
+		f.log.Error().Err(fmt.Errorf("user attempted to create an item in a display they do not own: %w", err)).Msg("")
 		return ErrorResponse("Forbidden", http.StatusForbidden)
 	}
 
-	i, err := f.querier.CreateItem(s.Identity.Id, pi.DisplayID, pi.ExternalLink) // should we respond with the serial number and redirect them? should we respond with the whole object?
+	i, err := f.querier.CreateItem(s.Identity.Id, displayID, pi.ExternalLink) // should we respond with the serial number and redirect them? should we respond with the whole object?
 	if err != nil {
+		f.log.Error().Err(fmt.Errorf("failed to create item in database: %w", err)).Msg("")
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
 	}
 
@@ -208,11 +242,12 @@ func (f facade) CreateItem(w http.ResponseWriter, r *http.Request) *Response {
 }
 
 // Get item
-// (GET /i/{itemID})
-func (f facade) GetItem(w http.ResponseWriter, r *http.Request, itemID int64) *Response {
-	i, err := f.querier.GetItem(itemID)
+// (GET /d/{displayID}/i/{itemID})
+func (f facade) GetItem(w http.ResponseWriter, r *http.Request, displayID int64, itemID int64) *Response {
+	i, err := f.querier.GetItem(itemID, displayID)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		f.log.Error().Err(fmt.Errorf("failed to get item from database: %w", err)).Msg("")
+		if errors.Is(err, sql.ErrNoRows) {
 			return ErrorResponse("Not Found", http.StatusNotFound)
 		}
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
@@ -229,29 +264,37 @@ func (f facade) GetItem(w http.ResponseWriter, r *http.Request, itemID int64) *R
 }
 
 // Update item
-// (PATCH /i/{itemID})
-func (f facade) UpdateItem(w http.ResponseWriter, r *http.Request, itemID int64) *Response {
+// (PATCH /d/{displayID}/i/{itemID})
+func (f facade) UpdateItem(w http.ResponseWriter, r *http.Request, displayID int64, itemID int64) *Response {
 	s := getSession(r.Context())
 
 	pi := PatchItem{}
 	err := json.NewDecoder(r.Body).Decode(&pi)
 	if err != nil {
+		f.log.Error().Err(fmt.Errorf("failed to decode patchitem body into a patchitem: %w", err)).Msg("")
 		return ErrorResponse("Bad Request", http.StatusBadRequest)
 	}
 	if pi.ExternalLink == nil && pi.PhotoURL == nil && pi.SocialPostLink == nil {
+		f.log.Error().Err(fmt.Errorf("user did not provide a externallink, photourl, or socialpostlink: %w", err)).Msg("")
 		return ErrorResponse("Bad Request", http.StatusBadRequest)
 	}
 
 	isItemOwner, err := f.querier.IsItemOwner(s.Identity.Id, itemID)
 	if err != nil {
+		f.log.Error().Err(fmt.Errorf("failed to check if user is item owner: %w", err)).Msg("")
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
 	}
 	if !isItemOwner {
+		f.log.Error().Err(fmt.Errorf("user attempted to update an item they do not own: %w", err)).Msg("")
 		return ErrorResponse("Forbidden", http.StatusForbidden)
 	}
 
-	i, err := f.querier.UpdateItem(itemID, pi.ExternalLink, pi.SocialPostLink, pi.PhotoURL)
+	i, err := f.querier.UpdateItem(itemID, displayID, pi.ExternalLink, pi.SocialPostLink, pi.PhotoURL)
 	if err != nil {
+		f.log.Error().Err(fmt.Errorf("failed to update item in database: %w", err)).Msg("")
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrorResponse("Not Found", http.StatusNotFound)
+		}
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
 	}
 
@@ -266,21 +309,31 @@ func (f facade) UpdateItem(w http.ResponseWriter, r *http.Request, itemID int64)
 }
 
 // Delete item
-// (DELETE /i/{itemID})
-func (f facade) DeleteItem(w http.ResponseWriter, r *http.Request, itemID int64) *Response {
+// (DELETE /d/{displayID}/i/{itemID})
+func (f facade) DeleteItem(w http.ResponseWriter, r *http.Request, displayID int64, itemID int64) *Response {
 	s := getSession(r.Context())
 
 	isItemOwner, err := f.querier.IsItemOwner(s.Identity.Id, itemID)
 	if err != nil {
+		f.log.Error().Err(fmt.Errorf("failed to check if user is item owner: %w", err)).Msg("")
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrorResponse("Not Found", http.StatusNotFound)
+		}
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
 	}
 	if !isItemOwner {
+		f.log.Error().Err(fmt.Errorf("user attempted to delete an item they do not own: %w", err)).Msg("")
 		return ErrorResponse("Forbidden", http.StatusForbidden)
 	}
 
-	err = f.querier.DeleteItem(itemID)
+	ok, err := f.querier.DeleteItem(itemID, displayID)
 	if err != nil {
+		f.log.Error().Err(fmt.Errorf("failed to delete item from database: %w", err)).Msg("")
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
+	}
+
+	if !ok {
+		return ErrorResponse("Not Found", http.StatusNotFound)
 	}
 
 	return NoContentResponse()

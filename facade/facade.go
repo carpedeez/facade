@@ -15,9 +15,9 @@ import (
 )
 
 type facade struct {
+	log     zerolog.Logger
 	querier database.Querier
 	ory     *ory.APIClient
-	log     zerolog.Logger
 }
 
 func Run(wg *sync.WaitGroup, ctx context.Context, log zerolog.Logger, c config.FacadeConfig, q database.Querier) {
@@ -27,10 +27,10 @@ func Run(wg *sync.WaitGroup, ctx context.Context, log zerolog.Logger, c config.F
 	oryC.Servers = ory.ServerConfigurations{{URL: fmt.Sprintf("http://localhost:%s/", "4433")}}
 	o := ory.NewAPIClient(oryC)
 
-	f := facade{q, o, log}
+	f := facade{log, q, o}
 
 	r := chi.NewRouter()
-	r.Use(middleware.RealIP, middleware.RequestID, middleware.Recoverer, newAPILogger(log))
+	r.Use(middleware.RealIP, middleware.RequestID, middleware.Recoverer, newRequestLogger(log))
 
 	handler := Handler(f, WithRouter(r), WithMiddleware("session", f.sessionMiddleware))
 

@@ -11,13 +11,13 @@ type Querier interface {
 	CreateDisplay(userID string, title, description string) (Display, error)
 	GetDisplay(displayID int64) (Display, error)
 	UpdateDisplay(displayID int64, title, description *string) (Display, error)
-	DeleteDisplay(displayID int64) error
+	DeleteDisplay(displayID int64) (bool, error)
 
 	CreateItem(userID string, displayID int64, externalLink string) (Item, error)
-	GetItem(itemID int64) (Item, error)
+	GetItem(itemID, displayID int64) (Item, error)
 	GetItems(displayID int64) ([]Item, error)
-	UpdateItem(itemID int64, externalLink, socialPostLink, photoURL *string) (Item, error)
-	DeleteItem(itemID int64) error
+	UpdateItem(itemID, displayID int64, externalLink, socialPostLink, photoURL *string) (Item, error)
+	DeleteItem(itemID, displayID int64) (bool, error)
 
 	IsItemOwner(userID string, itemID int64) (bool, error)
 	IsDisplayOwner(userID string, displayID int64) (bool, error)
@@ -37,7 +37,7 @@ func (q postgresQuerier) CreateDisplay(userID string, title, description string)
 		return d, fmt.Errorf("failed to create sql query from parameters: %w", err)
 	}
 
-	err = q.DB.QueryRow(sql, params...).Scan(&d)
+	err = q.DB.QueryRow(sql, params...).Scan(&d.ID, &d.UserID, &d.Title, &d.Description, &d.PhotoURL)
 	if err != nil {
 		return d, fmt.Errorf("failed to execute database query: %w", err)
 	}
@@ -53,7 +53,7 @@ func (q postgresQuerier) GetDisplay(displayID int64) (Display, error) {
 		return d, fmt.Errorf("failed to create sql query from parameters: %w", err)
 	}
 
-	err = q.DB.QueryRow(sql, params...).Scan(&d)
+	err = q.DB.QueryRow(sql, params...).Scan(&d.ID, &d.UserID, &d.Title, &d.Description, &d.PhotoURL)
 	if err != nil {
 		return d, fmt.Errorf("failed to execute database query: %w", err)
 	}
@@ -72,12 +72,12 @@ func (q postgresQuerier) UpdateDisplay(displayID int64, title, description *stri
 	if description != nil {
 		r["descr"] = *description
 	}
-	sql, params, err := u.Set(r).Returning("*").ToSQL()
+	sql, params, err := u.Set(r).Where(goqu.Ex{"id": displayID}).Returning("*").ToSQL()
 	if err != nil {
 		return d, fmt.Errorf("failed to create sql query from parameters: %w", err)
 	}
 
-	err = q.DB.QueryRow(sql, params...).Scan(&d)
+	err = q.DB.QueryRow(sql, params...).Scan(&d.ID, &d.UserID, &d.Title, &d.Description, &d.PhotoURL)
 	if err != nil {
 		return d, fmt.Errorf("failed to execute database query: %w", err)
 	}
@@ -85,18 +85,27 @@ func (q postgresQuerier) UpdateDisplay(displayID int64, title, description *stri
 	return d, nil
 }
 
-func (q postgresQuerier) DeleteDisplay(displayID int64) error {
+func (q postgresQuerier) DeleteDisplay(displayID int64) (bool, error) {
 	sql, params, err := goqu.Delete("displays").Where(goqu.Ex{"id": displayID}).ToSQL()
 	if err != nil {
-		return fmt.Errorf("failed to create sql query from parameters: %w", err)
+		return false, fmt.Errorf("failed to create sql query from parameters: %w", err)
 	}
 
-	_, err = q.DB.Exec(sql, params...)
+	res, err := q.DB.Exec(sql, params...)
 	if err != nil {
-		return fmt.Errorf("failed to execute database query: %w", err)
+		return false, fmt.Errorf("failed to execute database query: %w", err)
 	}
 
-	return nil
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return false, fmt.Errorf("no clue ngl")
+	}
+
+	if rows != 1 {
+		return false, nil
+	}
+
+	return true, nil
 }
 
 func (q postgresQuerier) CreateItem(userID string, displayID int64, externalLink string) (Item, error) {
@@ -107,7 +116,7 @@ func (q postgresQuerier) CreateItem(userID string, displayID int64, externalLink
 		return i, fmt.Errorf("failed to create sql query from parameters: %w", err)
 	}
 
-	err = q.DB.QueryRow(sql, params...).Scan(&i)
+	err = q.DB.QueryRow(sql, params...).Scan(&i.ID, &i.UserID, &i.DisplayID, &i.ExternalLink, &i.SocialPostLink, &i.PhotoURL)
 	if err != nil {
 		return i, fmt.Errorf("failed to execute database query: %w", err)
 	}
@@ -115,15 +124,15 @@ func (q postgresQuerier) CreateItem(userID string, displayID int64, externalLink
 	return i, nil
 }
 
-func (q postgresQuerier) GetItem(itemID int64) (Item, error) {
+func (q postgresQuerier) GetItem(itemID, displayID int64) (Item, error) {
 	i := Item{}
 
-	sql, params, err := goqu.Select("*").From("items").Where(goqu.Ex{"id": itemID}).ToSQL()
+	sql, params, err := goqu.Select("*").From("items").Where(goqu.Ex{"id": itemID, "display_id": displayID}).ToSQL()
 	if err != nil {
 		return i, fmt.Errorf("failed to create sql query from parameters: %w", err)
 	}
 
-	err = q.DB.QueryRow(sql, params...).Scan(&i)
+	err = q.DB.QueryRow(sql, params...).Scan(&i.ID, &i.UserID, &i.DisplayID, &i.ExternalLink, &i.SocialPostLink, &i.PhotoURL)
 	if err != nil {
 		return i, fmt.Errorf("failed to execute database query: %w", err)
 	}
@@ -144,15 +153,25 @@ func (q postgresQuerier) GetItems(displayID int64) ([]Item, error) {
 		return is, fmt.Errorf("failed to execute database query: %w", err)
 	}
 
-	r.Scan(&is)
+	for r.Next() {
+		var i Item
+		r.Scan(&i.ID, &i.UserID, &i.DisplayID, &i.ExternalLink, &i.SocialPostLink, &i.PhotoURL)
+		is = append(is, i)
+	}
+	err = r.Err()
 	if err != nil {
 		return is, fmt.Errorf("failed to scan results: %w", err)
+	}
+
+	err = r.Close()
+	if err != nil {
+		return is, fmt.Errorf("failed to close rows: %w", err)
 	}
 
 	return is, nil
 }
 
-func (q postgresQuerier) UpdateItem(id int64, externalLink, socialPostLink, photoURL *string) (Item, error) {
+func (q postgresQuerier) UpdateItem(itemID, displayID int64, externalLink, socialPostLink, photoURL *string) (Item, error) {
 	i := Item{}
 
 	u := goqu.Update("items")
@@ -166,12 +185,12 @@ func (q postgresQuerier) UpdateItem(id int64, externalLink, socialPostLink, phot
 	if photoURL != nil {
 		r["photo_url"] = *photoURL
 	}
-	sql, params, err := u.Set(r).Returning("*").ToSQL()
+	sql, params, err := u.Set(r).Where(goqu.Ex{"id": itemID, "display_id": displayID}).Returning("*").ToSQL()
 	if err != nil {
 		return i, fmt.Errorf("failed to create sql query from parameters: %w", err)
 	}
 
-	err = q.DB.QueryRow(sql, params...).Scan(&i)
+	err = q.DB.QueryRow(sql, params...).Scan(&i.ID, &i.UserID, &i.DisplayID, &i.ExternalLink, &i.SocialPostLink, &i.PhotoURL)
 	if err != nil {
 		return i, fmt.Errorf("failed to execute database query: %w", err)
 	}
@@ -179,18 +198,27 @@ func (q postgresQuerier) UpdateItem(id int64, externalLink, socialPostLink, phot
 	return i, nil
 }
 
-func (q postgresQuerier) DeleteItem(id int64) error {
-	sql, params, err := goqu.Delete("items").Where(goqu.Ex{"id": id}).ToSQL()
+func (q postgresQuerier) DeleteItem(itemID, displayID int64) (bool, error) {
+	sql, params, err := goqu.Delete("items").Where(goqu.Ex{"id": itemID, "display_id": displayID}).ToSQL()
 	if err != nil {
-		return fmt.Errorf("failed to create sql query from parameters: %w", err)
+		return false, fmt.Errorf("failed to create sql query from parameters: %w", err)
 	}
 
-	_, err = q.DB.Exec(sql, params...)
+	res, err := q.DB.Exec(sql, params...)
 	if err != nil {
-		return fmt.Errorf("failed to execute database query: %w", err)
+		return false, fmt.Errorf("failed to execute database query: %w", err)
 	}
 
-	return nil
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return false, fmt.Errorf("no clue ngl")
+	}
+
+	if rows != 1 {
+		return false, nil
+	}
+
+	return true, nil
 }
 
 func (q postgresQuerier) IsItemOwner(userID string, itemID int64) (bool, error) {
