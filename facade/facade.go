@@ -32,10 +32,8 @@ func Run(wg *sync.WaitGroup, ctx context.Context, log zerolog.Logger, c config.F
 
 	r := chi.NewRouter()
 	r.Use(middleware.RealIP, middleware.RequestID, middleware.Recoverer, newRequestLogger(log))
+
 	r.Get("/v0/@me", f.FakeMe)
-
-	handler := Handler(f, WithRouter(r), WithMiddleware("session", fakeSessionMiddleware), WithServerBaseURL("/v0"))
-
 	r.Get("/v0/redoc", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`<!DOCTYPE html>
 		<html>
@@ -62,7 +60,6 @@ func Run(wg *sync.WaitGroup, ctx context.Context, log zerolog.Logger, c config.F
 		  </body>
 		</html>`))
 	})
-
 	r.Get("/v0/spec.json", func(w http.ResponseWriter, r *http.Request) {
 		swagger, err := GetSwagger()
 		if err != nil {
@@ -74,6 +71,8 @@ func Run(wg *sync.WaitGroup, ctx context.Context, log zerolog.Logger, c config.F
 		}
 		w.Write(json)
 	})
+
+	handler := Handler(f, WithRouter(r), WithMiddleware("session", fakeSessionMiddleware), WithServerBaseURL("/v0"))
 
 	go func() {
 		log.Info().Msgf("listening on http://localhost:%s/", c.Port)
