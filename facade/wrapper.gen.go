@@ -176,6 +176,7 @@ type Response struct {
 // Render implements the render.Renderer interface. It sets the Content-Type header
 // and status code based on the response definition.
 func (resp *Response) Render(w http.ResponseWriter, r *http.Request) error {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", resp.contentType)
 	render.Status(r, resp.Code)
 	return nil
