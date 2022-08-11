@@ -155,7 +155,7 @@ func (q postgresQuerier) GetItems(displayID int64) ([]Item, error) {
 
 	for r.Next() {
 		var i Item
-		r.Scan(&i.ID, &i.UserID, &i.DisplayID, &i.ExternalLink, &i.SocialPostLink, &i.PhotoURL)
+		_ = r.Scan(&i.ID, &i.UserID, &i.DisplayID, &i.ExternalLink, &i.SocialPostLink, &i.PhotoURL)
 		is = append(is, i)
 	}
 	err = r.Err()
