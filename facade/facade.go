@@ -31,8 +31,9 @@ func Run(wg *sync.WaitGroup, ctx context.Context, log zerolog.Logger, c config.F
 
 	r := chi.NewRouter()
 	r.Use(middleware.RealIP, middleware.RequestID, middleware.Recoverer, newRequestLogger(log))
+	r.Get("/v0/@me", f.FakeMe)
 
-	handler := Handler(f, WithRouter(r), WithMiddleware("session", f.sessionMiddleware))
+	handler := Handler(f, WithRouter(r), WithMiddleware("session", fakeSessionMiddleware), WithServerBaseURL("/v0"))
 
 	go func() {
 		log.Info().Msgf("listening on http://localhost:%s/", c.Port)

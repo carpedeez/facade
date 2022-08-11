@@ -337,9 +337,6 @@ func UpdateItemJSON400Response(body Error) *Response {
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
-	// Get Session
-	// (GET /@me)
-	Me(w http.ResponseWriter, r *http.Request) *Response
 	// Upload file
 	// (POST /assets)
 	UploadFile(w http.ResponseWriter, r *http.Request) *Response
@@ -374,24 +371,6 @@ type ServerInterfaceWrapper struct {
 	Handler          ServerInterface
 	Middlewares      map[string]func(http.Handler) http.Handler
 	ErrorHandlerFunc func(w http.ResponseWriter, r *http.Request, err error)
-}
-
-// Me operation middleware
-func (siw *ServerInterfaceWrapper) Me(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp := siw.Handler.Me(w, r)
-		if resp != nil {
-			if resp.body != nil {
-				render.Render(w, r, resp)
-			} else {
-				w.WriteHeader(resp.Code)
-			}
-		}
-	})
-
-	handler(w, r.WithContext(ctx))
 }
 
 // UploadFile operation middleware
@@ -782,7 +761,6 @@ func Handler(si ServerInterface, opts ...ServerOption) http.Handler {
 	}
 
 	r.Route(options.BaseURL, func(r chi.Router) {
-		r.Get("/@me", wrapper.Me)
 		r.Post("/assets", wrapper.UploadFile)
 		r.Post("/d", wrapper.CreateDisplay)
 		r.Delete("/d/{displayID}", wrapper.DeleteDisplay)
