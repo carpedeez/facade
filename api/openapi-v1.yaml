@@ -6,7 +6,7 @@ info:
 servers:
   - url: https://api.facadeapp.dev/v0
     description: facade api
-  # facadeapp.dev will serve static webpages, auth.facadeapp.dev will handle authentication
+  # facadeapp.dev will serve static webpages, account.facadeapp.dev will handle authentication
 paths:
   /@me:
     get:
@@ -79,8 +79,8 @@ paths:
           required: true
           in: path
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
       responses:
         '200':
           description: OK
@@ -98,8 +98,8 @@ paths:
           required: true
           in: path
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -129,8 +129,8 @@ paths:
           required: true
           in: path
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
       responses:
         '204':
           description: No Content      
@@ -145,8 +145,8 @@ paths:
           required: true
           in: path
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -175,14 +175,14 @@ paths:
           required: true
           in: path
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
         - name: itemID
           required: true
           in: path
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
       responses:
         '200':
           description: OK
@@ -200,14 +200,14 @@ paths:
           required: true
           in: path
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
         - name: itemID
           required: true
           in: path
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -237,14 +237,14 @@ paths:
           required: true
           in: path
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
         - name: itemID
           required: true
           in: path
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
       responses:
         '204':
           description: No Content       
@@ -396,10 +396,11 @@ components:
       additionalProperties: false
       properties:
         id:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
         userID:
           type: string
+          format: uuid
         title:
           type: string
         description:
@@ -441,19 +442,20 @@ components:
       additionalProperties: false
       properties:
         id:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
+        userID:
+          type: string
+          format: uuid
+        displayID:
+          type: string
+          format: uuid
         externalLink:
           type: string
         socialPostLink:
           type: string
         photoURL:
           type: string
-        userID:
-          type: string
-        displayID:
-          type: integer
-          format: int64
     PostItem:
       type: object
       required:

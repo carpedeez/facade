@@ -154,19 +154,19 @@ This operation does not require authentication
 
 ```json
 {
-  "id": 0,
-  "userID": "string",
+  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+  "userID": "2c3821b8-1cdb-4b77-bcd8-a1da701e46aa",
   "title": "string",
   "description": "string",
   "photoURL": "string",
   "items": [
     {
-      "id": 0,
+      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "userID": "2c3821b8-1cdb-4b77-bcd8-a1da701e46aa",
+      "displayID": "203078dd-9bd4-4fb3-85e6-8b5523f54453",
       "externalLink": "string",
       "socialPostLink": "string",
-      "photoURL": "string",
-      "userID": "string",
-      "displayID": 0
+      "photoURL": "string"
     }
   ]
 }
@@ -195,7 +195,7 @@ This operation does not require authentication
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|displayID|path|integer(int64)|true|none|
+|displayID|path|string(uuid)|true|none|
 
 > Example responses
 
@@ -203,19 +203,19 @@ This operation does not require authentication
 
 ```json
 {
-  "id": 0,
-  "userID": "string",
+  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+  "userID": "2c3821b8-1cdb-4b77-bcd8-a1da701e46aa",
   "title": "string",
   "description": "string",
   "photoURL": "string",
   "items": [
     {
-      "id": 0,
+      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "userID": "2c3821b8-1cdb-4b77-bcd8-a1da701e46aa",
+      "displayID": "203078dd-9bd4-4fb3-85e6-8b5523f54453",
       "externalLink": "string",
       "socialPostLink": "string",
-      "photoURL": "string",
-      "userID": "string",
-      "displayID": 0
+      "photoURL": "string"
     }
   ]
 }
@@ -252,7 +252,7 @@ This operation does not require authentication
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|displayID|path|integer(int64)|true|none|
+|displayID|path|string(uuid)|true|none|
 |body|body|[PatchDisplay](#schemapatchdisplay)|true|none|
 
 > Example responses
@@ -261,19 +261,19 @@ This operation does not require authentication
 
 ```json
 {
-  "id": 0,
-  "userID": "string",
+  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+  "userID": "2c3821b8-1cdb-4b77-bcd8-a1da701e46aa",
   "title": "string",
   "description": "string",
   "photoURL": "string",
   "items": [
     {
-      "id": 0,
+      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "userID": "2c3821b8-1cdb-4b77-bcd8-a1da701e46aa",
+      "displayID": "203078dd-9bd4-4fb3-85e6-8b5523f54453",
       "externalLink": "string",
       "socialPostLink": "string",
-      "photoURL": "string",
-      "userID": "string",
-      "displayID": 0
+      "photoURL": "string"
     }
   ]
 }
@@ -302,7 +302,7 @@ This operation does not require authentication
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|displayID|path|integer(int64)|true|none|
+|displayID|path|string(uuid)|true|none|
 
 <h3 id="deletedisplay-responses">Responses</h3>
 
@@ -334,7 +334,7 @@ This operation does not require authentication
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|displayID|path|integer(int64)|true|none|
+|displayID|path|string(uuid)|true|none|
 |body|body|[PostItem](#schemapostitem)|true|none|
 
 > Example responses
@@ -343,12 +343,12 @@ This operation does not require authentication
 
 ```json
 {
-  "id": 0,
+  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+  "userID": "2c3821b8-1cdb-4b77-bcd8-a1da701e46aa",
+  "displayID": "203078dd-9bd4-4fb3-85e6-8b5523f54453",
   "externalLink": "string",
   "socialPostLink": "string",
-  "photoURL": "string",
-  "userID": "string",
-  "displayID": 0
+  "photoURL": "string"
 }
 ```
 
@@ -375,8 +375,8 @@ This operation does not require authentication
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|displayID|path|integer(int64)|true|none|
-|itemID|path|integer(int64)|true|none|
+|displayID|path|string(uuid)|true|none|
+|itemID|path|string(uuid)|true|none|
 
 > Example responses
 
@@ -384,12 +384,12 @@ This operation does not require authentication
 
 ```json
 {
-  "id": 0,
+  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+  "userID": "2c3821b8-1cdb-4b77-bcd8-a1da701e46aa",
+  "displayID": "203078dd-9bd4-4fb3-85e6-8b5523f54453",
   "externalLink": "string",
   "socialPostLink": "string",
-  "photoURL": "string",
-  "userID": "string",
-  "displayID": 0
+  "photoURL": "string"
 }
 ```
 
@@ -425,8 +425,8 @@ This operation does not require authentication
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|displayID|path|integer(int64)|true|none|
-|itemID|path|integer(int64)|true|none|
+|displayID|path|string(uuid)|true|none|
+|itemID|path|string(uuid)|true|none|
 |body|body|[PatchItem](#schemapatchitem)|true|none|
 
 > Example responses
@@ -435,12 +435,12 @@ This operation does not require authentication
 
 ```json
 {
-  "id": 0,
+  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+  "userID": "2c3821b8-1cdb-4b77-bcd8-a1da701e46aa",
+  "displayID": "203078dd-9bd4-4fb3-85e6-8b5523f54453",
   "externalLink": "string",
   "socialPostLink": "string",
-  "photoURL": "string",
-  "userID": "string",
-  "displayID": 0
+  "photoURL": "string"
 }
 ```
 
@@ -467,8 +467,8 @@ This operation does not require authentication
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|displayID|path|integer(int64)|true|none|
-|itemID|path|integer(int64)|true|none|
+|displayID|path|string(uuid)|true|none|
+|itemID|path|string(uuid)|true|none|
 
 <h3 id="deleteitem-responses">Responses</h3>
 
@@ -610,19 +610,19 @@ This operation does not require authentication
 
 ```json
 {
-  "id": 0,
-  "userID": "string",
+  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+  "userID": "2c3821b8-1cdb-4b77-bcd8-a1da701e46aa",
   "title": "string",
   "description": "string",
   "photoURL": "string",
   "items": [
     {
-      "id": 0,
+      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "userID": "2c3821b8-1cdb-4b77-bcd8-a1da701e46aa",
+      "displayID": "203078dd-9bd4-4fb3-85e6-8b5523f54453",
       "externalLink": "string",
       "socialPostLink": "string",
-      "photoURL": "string",
-      "userID": "string",
-      "displayID": 0
+      "photoURL": "string"
     }
   ]
 }
@@ -633,8 +633,8 @@ This operation does not require authentication
 
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
-|id|integer(int64)|true|none|none|
-|userID|string|true|none|none|
+|id|string(uuid)|true|none|none|
+|userID|string(uuid)|true|none|none|
 |title|string|true|none|none|
 |description|string|true|none|none|
 |photoURL|string|true|none|none|
@@ -693,12 +693,12 @@ This operation does not require authentication
 
 ```json
 {
-  "id": 0,
+  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+  "userID": "2c3821b8-1cdb-4b77-bcd8-a1da701e46aa",
+  "displayID": "203078dd-9bd4-4fb3-85e6-8b5523f54453",
   "externalLink": "string",
   "socialPostLink": "string",
-  "photoURL": "string",
-  "userID": "string",
-  "displayID": 0
+  "photoURL": "string"
 }
 
 ```
@@ -707,12 +707,12 @@ This operation does not require authentication
 
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
-|id|integer(int64)|true|none|none|
+|id|string(uuid)|true|none|none|
+|userID|string(uuid)|true|none|none|
+|displayID|string(uuid)|true|none|none|
 |externalLink|string|true|none|none|
 |socialPostLink|string|true|none|none|
 |photoURL|string|true|none|none|
-|userID|string|true|none|none|
-|displayID|integer(int64)|true|none|none|
 
 <h2 id="tocS_PostItem">PostItem</h2>
 <!-- backwards compatibility -->

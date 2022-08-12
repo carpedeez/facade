@@ -1,17 +1,19 @@
 package database
 
+import "github.com/google/uuid"
+
 type Display struct {
-	ID          int64
-	UserID      string
+	ID          uuid.UUID
+	UserID      uuid.UUID
 	Title       string
 	Description string
 	PhotoURL    string
 }
 
 type Item struct {
-	ID             int64
-	UserID         string
-	DisplayID      int64
+	ID             uuid.UUID
+	UserID         uuid.UUID
+	DisplayID      uuid.UUID
 	ExternalLink   string
 	SocialPostLink string
 	PhotoURL       string

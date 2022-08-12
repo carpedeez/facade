@@ -1,6 +1,6 @@
 CREATE TABLE displays
 (
-    id BIGSERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY,
     user_id VARCHAR NOT NULL,
 
     title VARCHAR NOT NULL,
@@ -10,9 +10,9 @@ CREATE TABLE displays
 
 CREATE TABLE items
 (
-    id BIGSERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY,
     user_id VARCHAR NOT NULL,
-    display_id BIGINT REFERENCES displays(id) NOT NULL,
+    display_id UUID REFERENCES displays(id) NOT NULL,
 
     external_link VARCHAR NOT NULL,
     social_post_link VARCHAR NOT NULL,

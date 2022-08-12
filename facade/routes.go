@@ -6,7 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strconv"
+
+	"github.com/google/uuid"
 )
 
 // Get Session
@@ -17,7 +18,7 @@ func (f facade) Me(w http.ResponseWriter, r *http.Request) *Response {
 	if (err != nil || s == nil) || !*s.Active {
 		return ErrorResponse("Unauthorized", http.StatusUnauthorized)
 	}
-	return &Response{ // switched to this instead of the MeJSON200Response because it's wrong.
+	return &Response{
 		body: s, // fix open api schema when identity schema is decided
 		Code: 200,
 	}
@@ -34,6 +35,7 @@ func (f facade) UploadFile(w http.ResponseWriter, r *http.Request) *Response {
 // (POST /d)
 func (f facade) CreateDisplay(w http.ResponseWriter, r *http.Request) *Response {
 	s := getSession(r.Context())
+	uID, _ := uuid.Parse(s.Identity.Id) // Prayge Kratos give us a real UUID
 
 	pd := PostDisplay{}
 	err := json.NewDecoder(r.Body).Decode(&pd)
@@ -47,27 +49,32 @@ func (f facade) CreateDisplay(w http.ResponseWriter, r *http.Request) *Response 
 		return ErrorResponse("Bad Request", http.StatusBadRequest)
 	}
 
-	d, err := f.querier.CreateDisplay(s.Identity.Id, pd.Title, pd.Description) // should we respond with the serial number and redirect them? should we respond with the whole object?
+	d, err := f.querier.CreateDisplay(uID, pd.Title, pd.Description)
 	if err != nil {
 		f.log.Error().Err(fmt.Errorf("failed to create display in database: %w", err)).Msg("")
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
 	}
 
-	w.Header().Add("Location", "/d/"+strconv.Itoa(int(d.ID)))
+	w.Header().Add("Location", "/d/"+d.ID.String())
 	return CreateDisplayJSON201Response(GetDisplay{
-		Description: d.Description,
-		ID:          d.ID,
-		Items:       []GetItem{},
-		PhotoURL:    d.PhotoURL,
+		ID:          d.ID.String(),
+		UserID:      d.UserID.String(),
 		Title:       d.Title,
-		UserID:      d.UserID,
+		Description: d.Description,
+		PhotoURL:    d.PhotoURL,
+		Items:       []GetItem{},
 	})
 }
 
 // Get display
 // (GET /d/{displayID})
-func (f facade) GetDisplay(w http.ResponseWriter, r *http.Request, displayID int64) *Response {
-	d, err := f.querier.GetDisplay(displayID)
+func (f facade) GetDisplay(w http.ResponseWriter, r *http.Request, displayID string) *Response {
+	dID, err := uuid.Parse(displayID)
+	if err != nil {
+		return ErrorResponse("Not Found", http.StatusNotFound)
+	}
+
+	d, err := f.querier.GetDisplay(dID)
 	if err != nil {
 		f.log.Error().Err(fmt.Errorf("failed to get display from database: %w", err)).Msg("")
 		if errors.Is(err, sql.ErrNoRows) {
@@ -75,7 +82,7 @@ func (f facade) GetDisplay(w http.ResponseWriter, r *http.Request, displayID int
 		}
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
 	}
-	is, err := f.querier.GetItems(displayID)
+	is, err := f.querier.GetItems(dID)
 	if err != nil {
 		f.log.Error().Err(fmt.Errorf("failed to get items from database: %w", err)).Msg("")
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
@@ -83,32 +90,38 @@ func (f facade) GetDisplay(w http.ResponseWriter, r *http.Request, displayID int
 	dItems := []GetItem{}
 	for _, i := range is {
 		dItems = append(dItems, GetItem{
-			DisplayID:      i.DisplayID,
+			ID:             i.ID.String(),
+			DisplayID:      i.DisplayID.String(),
+			UserID:         i.UserID.String(),
 			ExternalLink:   i.ExternalLink,
-			ID:             i.ID,
-			PhotoURL:       i.PhotoURL,
 			SocialPostLink: i.SocialPostLink,
-			UserID:         i.UserID,
+			PhotoURL:       i.PhotoURL,
 		})
 	}
 
 	return GetDisplayJSON200Response(GetDisplay{
-		Description: d.Description,
-		ID:          d.ID,
-		Items:       dItems,
-		PhotoURL:    d.PhotoURL,
+		ID:          d.ID.String(),
+		UserID:      d.UserID.String(),
 		Title:       d.Title,
-		UserID:      d.UserID,
+		Description: d.Description,
+		PhotoURL:    d.PhotoURL,
+		Items:       dItems,
 	})
 }
 
 // Update display
 // (PATCH /d/{displayID})
-func (f facade) UpdateDisplay(w http.ResponseWriter, r *http.Request, displayID int64) *Response {
+func (f facade) UpdateDisplay(w http.ResponseWriter, r *http.Request, displayID string) *Response {
 	s := getSession(r.Context())
+	uID, _ := uuid.Parse(s.Identity.Id) // Prayge Kratos give us a real UUID
+
+	dID, err := uuid.Parse(displayID)
+	if err != nil {
+		return ErrorResponse("Not Found", http.StatusNotFound)
+	}
 
 	pd := PatchDisplay{}
-	err := json.NewDecoder(r.Body).Decode(&pd)
+	err = json.NewDecoder(r.Body).Decode(&pd)
 	if err != nil {
 		f.log.Error().Err(fmt.Errorf("failed to decode patchdisplay body into a patchdisplay: %w", err)).Msg("")
 		return ErrorResponse("Bad Request", http.StatusBadRequest)
@@ -118,7 +131,7 @@ func (f facade) UpdateDisplay(w http.ResponseWriter, r *http.Request, displayID 
 		return ErrorResponse("Bad Request", http.StatusBadRequest)
 	}
 
-	isDisplayOwner, err := f.querier.IsDisplayOwner(s.Identity.Id, displayID)
+	isDisplayOwner, err := f.querier.IsDisplayOwner(uID, dID)
 	if err != nil {
 		f.log.Error().Err(fmt.Errorf("failed to check if user is display owner: %w", err)).Msg("")
 		if errors.Is(err, sql.ErrNoRows) {
@@ -131,13 +144,13 @@ func (f facade) UpdateDisplay(w http.ResponseWriter, r *http.Request, displayID 
 		return ErrorResponse("Forbidden", http.StatusForbidden)
 	}
 
-	d, err := f.querier.UpdateDisplay(displayID, pd.Title, pd.Description)
+	d, err := f.querier.UpdateDisplay(dID, pd.Title, pd.Description)
 	if err != nil {
 		f.log.Error().Err(fmt.Errorf("failed to update display in database: %w", err)).Msg("")
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
 	}
 
-	is, err := f.querier.GetItems(displayID)
+	is, err := f.querier.GetItems(dID)
 	if err != nil {
 		f.log.Error().Err(fmt.Errorf("failed to get items from database: %w", err)).Msg("")
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
@@ -145,31 +158,37 @@ func (f facade) UpdateDisplay(w http.ResponseWriter, r *http.Request, displayID 
 	dItems := []GetItem{}
 	for _, i := range is {
 		dItems = append(dItems, GetItem{
-			DisplayID:      i.DisplayID,
+			ID:             i.ID.String(),
+			UserID:         i.UserID.String(),
+			DisplayID:      i.DisplayID.String(),
 			ExternalLink:   i.ExternalLink,
-			ID:             i.ID,
-			PhotoURL:       i.PhotoURL,
 			SocialPostLink: i.SocialPostLink,
-			UserID:         i.UserID,
+			PhotoURL:       i.PhotoURL,
 		})
 	}
 
 	return GetDisplayJSON200Response(GetDisplay{
-		Description: d.Description,
-		ID:          d.ID,
-		Items:       dItems,
-		PhotoURL:    d.PhotoURL,
+		ID:          d.ID.String(),
+		UserID:      d.UserID.String(),
 		Title:       d.Title,
-		UserID:      d.UserID,
+		Description: d.Description,
+		PhotoURL:    d.PhotoURL,
+		Items:       dItems,
 	})
 }
 
 // Delete display
 // (DELETE /d/{displayID})
-func (f facade) DeleteDisplay(w http.ResponseWriter, r *http.Request, displayID int64) *Response {
+func (f facade) DeleteDisplay(w http.ResponseWriter, r *http.Request, displayID string) *Response {
 	s := getSession(r.Context())
+	uID, _ := uuid.Parse(s.Identity.Id) // Prayge Kratos give us a real UUID
 
-	isDisplayOwner, err := f.querier.IsDisplayOwner(s.Identity.Id, displayID)
+	dID, err := uuid.Parse(displayID)
+	if err != nil {
+		return ErrorResponse("Not Found", http.StatusNotFound)
+	}
+
+	isDisplayOwner, err := f.querier.IsDisplayOwner(uID, dID)
 	if err != nil {
 		f.log.Error().Err(fmt.Errorf("failed to check if user is display owner: %w", err)).Msg("")
 		if errors.Is(err, sql.ErrNoRows) {
@@ -182,7 +201,7 @@ func (f facade) DeleteDisplay(w http.ResponseWriter, r *http.Request, displayID 
 		return ErrorResponse("Forbidden", http.StatusForbidden)
 	}
 
-	ok, err := f.querier.DeleteDisplay(displayID)
+	ok, err := f.querier.DeleteDisplay(dID)
 	if err != nil {
 		f.log.Error().Err(fmt.Errorf("failed to delete display from database: %w", err)).Msg("")
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
@@ -197,11 +216,17 @@ func (f facade) DeleteDisplay(w http.ResponseWriter, r *http.Request, displayID 
 
 // Create Item
 // (POST /d/{displayID}/i)
-func (f facade) CreateItem(w http.ResponseWriter, r *http.Request, displayID int64) *Response {
+func (f facade) CreateItem(w http.ResponseWriter, r *http.Request, displayID string) *Response {
 	s := getSession(r.Context())
+	uID, _ := uuid.Parse(s.Identity.Id) // Prayge Kratos give us a real UUID
+
+	dID, err := uuid.Parse(displayID)
+	if err != nil {
+		return ErrorResponse("Not Found", http.StatusNotFound)
+	}
 
 	pi := PostItem{}
-	err := json.NewDecoder(r.Body).Decode(&pi)
+	err = json.NewDecoder(r.Body).Decode(&pi)
 	if err != nil {
 		f.log.Error().Err(fmt.Errorf("failed to decode postitem body into a postitem: %w", err)).Msg("")
 		return ErrorResponse("Bad Request", http.StatusBadRequest)
@@ -211,7 +236,7 @@ func (f facade) CreateItem(w http.ResponseWriter, r *http.Request, displayID int
 		return ErrorResponse("Bad Request", http.StatusBadRequest)
 	}
 
-	isDisplayOwner, err := f.querier.IsDisplayOwner(s.Identity.Id, displayID)
+	isDisplayOwner, err := f.querier.IsDisplayOwner(uID, dID)
 	if err != nil {
 		f.log.Error().Err(fmt.Errorf("failed to check if user is display owner: %w", err)).Msg("")
 		if errors.Is(err, sql.ErrNoRows) {
@@ -224,27 +249,36 @@ func (f facade) CreateItem(w http.ResponseWriter, r *http.Request, displayID int
 		return ErrorResponse("Forbidden", http.StatusForbidden)
 	}
 
-	i, err := f.querier.CreateItem(s.Identity.Id, displayID, pi.ExternalLink) // should we respond with the serial number and redirect them? should we respond with the whole object?
+	i, err := f.querier.CreateItem(uID, dID, pi.ExternalLink)
 	if err != nil {
 		f.log.Error().Err(fmt.Errorf("failed to create item in database: %w", err)).Msg("")
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
 	}
 
-	w.Header().Add("Location", "/i/"+strconv.Itoa(int(i.ID)))
+	w.Header().Add("Location", "/i/"+i.ID.String())
 	return CreateItemJSON201Response(GetItem{
-		DisplayID:      i.DisplayID,
+		ID:             i.ID.String(),
+		UserID:         i.UserID.String(),
+		DisplayID:      i.DisplayID.String(),
 		ExternalLink:   i.ExternalLink,
-		ID:             i.ID,
-		PhotoURL:       i.PhotoURL,
 		SocialPostLink: i.SocialPostLink,
-		UserID:         i.UserID,
+		PhotoURL:       i.PhotoURL,
 	})
 }
 
 // Get item
 // (GET /d/{displayID}/i/{itemID})
-func (f facade) GetItem(w http.ResponseWriter, r *http.Request, displayID int64, itemID int64) *Response {
-	i, err := f.querier.GetItem(itemID, displayID)
+func (f facade) GetItem(w http.ResponseWriter, r *http.Request, displayID string, itemID string) *Response {
+	dID, err := uuid.Parse(displayID)
+	if err != nil {
+		return ErrorResponse("Not Found", http.StatusNotFound)
+	}
+	iID, err := uuid.Parse(itemID)
+	if err != nil {
+		return ErrorResponse("Not Found", http.StatusNotFound)
+	}
+
+	i, err := f.querier.GetItem(iID, dID)
 	if err != nil {
 		f.log.Error().Err(fmt.Errorf("failed to get item from database: %w", err)).Msg("")
 		if errors.Is(err, sql.ErrNoRows) {
@@ -254,22 +288,32 @@ func (f facade) GetItem(w http.ResponseWriter, r *http.Request, displayID int64,
 	}
 
 	return GetItemJSON200Response(GetItem{
-		DisplayID:      i.DisplayID,
+		ID:             i.ID.String(),
+		UserID:         i.UserID.String(),
+		DisplayID:      i.DisplayID.String(),
 		ExternalLink:   i.ExternalLink,
-		ID:             i.ID,
-		PhotoURL:       i.PhotoURL,
 		SocialPostLink: i.SocialPostLink,
-		UserID:         i.UserID,
+		PhotoURL:       i.PhotoURL,
 	})
 }
 
 // Update item
 // (PATCH /d/{displayID}/i/{itemID})
-func (f facade) UpdateItem(w http.ResponseWriter, r *http.Request, displayID int64, itemID int64) *Response {
+func (f facade) UpdateItem(w http.ResponseWriter, r *http.Request, displayID string, itemID string) *Response {
 	s := getSession(r.Context())
+	uID, _ := uuid.Parse(s.Identity.Id) // Prayge Kratos give us a real UUID
+
+	dID, err := uuid.Parse(displayID)
+	if err != nil {
+		return ErrorResponse("Not Found", http.StatusNotFound)
+	}
+	iID, err := uuid.Parse(itemID)
+	if err != nil {
+		return ErrorResponse("Not Found", http.StatusNotFound)
+	}
 
 	pi := PatchItem{}
-	err := json.NewDecoder(r.Body).Decode(&pi)
+	err = json.NewDecoder(r.Body).Decode(&pi)
 	if err != nil {
 		f.log.Error().Err(fmt.Errorf("failed to decode patchitem body into a patchitem: %w", err)).Msg("")
 		return ErrorResponse("Bad Request", http.StatusBadRequest)
@@ -279,7 +323,7 @@ func (f facade) UpdateItem(w http.ResponseWriter, r *http.Request, displayID int
 		return ErrorResponse("Bad Request", http.StatusBadRequest)
 	}
 
-	isItemOwner, err := f.querier.IsItemOwner(s.Identity.Id, itemID)
+	isItemOwner, err := f.querier.IsItemOwner(uID, iID)
 	if err != nil {
 		f.log.Error().Err(fmt.Errorf("failed to check if user is item owner: %w", err)).Msg("")
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
@@ -289,7 +333,7 @@ func (f facade) UpdateItem(w http.ResponseWriter, r *http.Request, displayID int
 		return ErrorResponse("Forbidden", http.StatusForbidden)
 	}
 
-	i, err := f.querier.UpdateItem(itemID, displayID, pi.ExternalLink, pi.SocialPostLink, pi.PhotoURL)
+	i, err := f.querier.UpdateItem(iID, dID, pi.ExternalLink, pi.SocialPostLink, pi.PhotoURL)
 	if err != nil {
 		f.log.Error().Err(fmt.Errorf("failed to update item in database: %w", err)).Msg("")
 		if errors.Is(err, sql.ErrNoRows) {
@@ -299,21 +343,31 @@ func (f facade) UpdateItem(w http.ResponseWriter, r *http.Request, displayID int
 	}
 
 	return UpdateItemJSON200Response(GetItem{
-		DisplayID:      i.DisplayID,
+		ID:             i.ID.String(),
+		UserID:         i.UserID.String(),
+		DisplayID:      i.DisplayID.String(),
 		ExternalLink:   i.ExternalLink,
-		ID:             i.ID,
-		PhotoURL:       i.PhotoURL,
 		SocialPostLink: i.SocialPostLink,
-		UserID:         i.UserID,
+		PhotoURL:       i.PhotoURL,
 	})
 }
 
 // Delete item
 // (DELETE /d/{displayID}/i/{itemID})
-func (f facade) DeleteItem(w http.ResponseWriter, r *http.Request, displayID int64, itemID int64) *Response {
+func (f facade) DeleteItem(w http.ResponseWriter, r *http.Request, displayID string, itemID string) *Response {
 	s := getSession(r.Context())
+	uID, _ := uuid.Parse(s.Identity.Id) // Prayge Kratos give us a real UUID
 
-	isItemOwner, err := f.querier.IsItemOwner(s.Identity.Id, itemID)
+	dID, err := uuid.Parse(displayID)
+	if err != nil {
+		return ErrorResponse("Not Found", http.StatusNotFound)
+	}
+	iID, err := uuid.Parse(itemID)
+	if err != nil {
+		return ErrorResponse("Not Found", http.StatusNotFound)
+	}
+
+	isItemOwner, err := f.querier.IsItemOwner(uID, iID)
 	if err != nil {
 		f.log.Error().Err(fmt.Errorf("failed to check if user is item owner: %w", err)).Msg("")
 		if errors.Is(err, sql.ErrNoRows) {
@@ -326,7 +380,7 @@ func (f facade) DeleteItem(w http.ResponseWriter, r *http.Request, displayID int
 		return ErrorResponse("Forbidden", http.StatusForbidden)
 	}
 
-	ok, err := f.querier.DeleteItem(itemID, displayID)
+	ok, err := f.querier.DeleteItem(iID, dID)
 	if err != nil {
 		f.log.Error().Err(fmt.Errorf("failed to delete item from database: %w", err)).Msg("")
 		return ErrorResponse("Internal Server Error", http.StatusInternalServerError)
@@ -350,4 +404,9 @@ func NoContentResponse() *Response {
 	return &Response{
 		Code: http.StatusNoContent,
 	}
+}
+
+func IsValidUUID(u string) bool {
+	_, err := uuid.Parse(u)
+	return err == nil
 }

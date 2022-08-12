@@ -5,22 +5,23 @@ import (
 	"fmt"
 
 	"github.com/doug-martin/goqu/v9"
+	"github.com/google/uuid"
 )
 
 type Querier interface {
-	CreateDisplay(userID string, title, description string) (Display, error)
-	GetDisplay(displayID int64) (Display, error)
-	UpdateDisplay(displayID int64, title, description *string) (Display, error)
-	DeleteDisplay(displayID int64) (bool, error)
+	CreateDisplay(userID uuid.UUID, title, description string) (Display, error)
+	GetDisplay(displayID uuid.UUID) (Display, error)
+	UpdateDisplay(displayID uuid.UUID, title, description *string) (Display, error)
+	DeleteDisplay(displayID uuid.UUID) (bool, error)
 
-	CreateItem(userID string, displayID int64, externalLink string) (Item, error)
-	GetItem(itemID, displayID int64) (Item, error)
-	GetItems(displayID int64) ([]Item, error)
-	UpdateItem(itemID, displayID int64, externalLink, socialPostLink, photoURL *string) (Item, error)
-	DeleteItem(itemID, displayID int64) (bool, error)
+	CreateItem(userID, displayID uuid.UUID, externalLink string) (Item, error)
+	GetItem(itemID, displayID uuid.UUID) (Item, error)
+	GetItems(displayID uuid.UUID) ([]Item, error)
+	UpdateItem(itemID, displayID uuid.UUID, externalLink, socialPostLink, photoURL *string) (Item, error)
+	DeleteItem(itemID, displayID uuid.UUID) (bool, error)
 
-	IsItemOwner(userID string, itemID int64) (bool, error)
-	IsDisplayOwner(userID string, displayID int64) (bool, error)
+	IsItemOwner(userID, itemID uuid.UUID) (bool, error)
+	IsDisplayOwner(userID, displayID uuid.UUID) (bool, error)
 
 	Close() error
 }
@@ -29,10 +30,10 @@ type postgresQuerier struct {
 	DB *sql.DB
 }
 
-func (q postgresQuerier) CreateDisplay(userID string, title, description string) (Display, error) {
+func (q postgresQuerier) CreateDisplay(userID uuid.UUID, title, description string) (Display, error) {
 	d := Display{}
 
-	sql, params, err := goqu.Insert("displays").Cols("user_id", "title", "descr", "photo_url").Vals(goqu.Vals{userID, title, description, ""}).Returning("*").ToSQL()
+	sql, params, err := goqu.Insert("displays").Cols("id", "user_id", "title", "descr", "photo_url").Vals(goqu.Vals{uuid.New(), userID, title, description, ""}).Returning("*").ToSQL()
 	if err != nil {
 		return d, fmt.Errorf("failed to create sql query from parameters: %w", err)
 	}
@@ -45,7 +46,7 @@ func (q postgresQuerier) CreateDisplay(userID string, title, description string)
 	return d, nil
 }
 
-func (q postgresQuerier) GetDisplay(displayID int64) (Display, error) {
+func (q postgresQuerier) GetDisplay(displayID uuid.UUID) (Display, error) {
 	d := Display{}
 
 	sql, params, err := goqu.Select("*").From("displays").Where(goqu.Ex{"id": displayID}).ToSQL()
@@ -61,7 +62,7 @@ func (q postgresQuerier) GetDisplay(displayID int64) (Display, error) {
 	return d, nil
 }
 
-func (q postgresQuerier) UpdateDisplay(displayID int64, title, description *string) (Display, error) {
+func (q postgresQuerier) UpdateDisplay(displayID uuid.UUID, title, description *string) (Display, error) {
 	d := Display{}
 
 	u := goqu.Update("displays")
@@ -85,7 +86,7 @@ func (q postgresQuerier) UpdateDisplay(displayID int64, title, description *stri
 	return d, nil
 }
 
-func (q postgresQuerier) DeleteDisplay(displayID int64) (bool, error) {
+func (q postgresQuerier) DeleteDisplay(displayID uuid.UUID) (bool, error) {
 	sql, params, err := goqu.Delete("displays").Where(goqu.Ex{"id": displayID}).ToSQL()
 	if err != nil {
 		return false, fmt.Errorf("failed to create sql query from parameters: %w", err)
@@ -108,10 +109,10 @@ func (q postgresQuerier) DeleteDisplay(displayID int64) (bool, error) {
 	return true, nil
 }
 
-func (q postgresQuerier) CreateItem(userID string, displayID int64, externalLink string) (Item, error) {
+func (q postgresQuerier) CreateItem(userID, displayID uuid.UUID, externalLink string) (Item, error) {
 	i := Item{}
 
-	sql, params, err := goqu.Insert("items").Cols("user_id", "display_id", "external_link", "social_post_link", "photo_url").Vals(goqu.Vals{userID, displayID, externalLink, "", ""}).Returning("*").ToSQL()
+	sql, params, err := goqu.Insert("items").Cols("id", "user_id", "display_id", "external_link", "social_post_link", "photo_url").Vals(goqu.Vals{uuid.New(), userID, displayID, externalLink, "", ""}).Returning("*").ToSQL()
 	if err != nil {
 		return i, fmt.Errorf("failed to create sql query from parameters: %w", err)
 	}
@@ -124,7 +125,7 @@ func (q postgresQuerier) CreateItem(userID string, displayID int64, externalLink
 	return i, nil
 }
 
-func (q postgresQuerier) GetItem(itemID, displayID int64) (Item, error) {
+func (q postgresQuerier) GetItem(itemID, displayID uuid.UUID) (Item, error) {
 	i := Item{}
 
 	sql, params, err := goqu.Select("*").From("items").Where(goqu.Ex{"id": itemID, "display_id": displayID}).ToSQL()
@@ -140,7 +141,7 @@ func (q postgresQuerier) GetItem(itemID, displayID int64) (Item, error) {
 	return i, nil
 }
 
-func (q postgresQuerier) GetItems(displayID int64) ([]Item, error) {
+func (q postgresQuerier) GetItems(displayID uuid.UUID) ([]Item, error) {
 	is := []Item{}
 
 	sql, params, err := goqu.Select("*").From("items").Where(goqu.Ex{"display_id": displayID}).ToSQL()
@@ -171,7 +172,7 @@ func (q postgresQuerier) GetItems(displayID int64) ([]Item, error) {
 	return is, nil
 }
 
-func (q postgresQuerier) UpdateItem(itemID, displayID int64, externalLink, socialPostLink, photoURL *string) (Item, error) {
+func (q postgresQuerier) UpdateItem(itemID, displayID uuid.UUID, externalLink, socialPostLink, photoURL *string) (Item, error) {
 	i := Item{}
 
 	u := goqu.Update("items")
@@ -198,7 +199,7 @@ func (q postgresQuerier) UpdateItem(itemID, displayID int64, externalLink, socia
 	return i, nil
 }
 
-func (q postgresQuerier) DeleteItem(itemID, displayID int64) (bool, error) {
+func (q postgresQuerier) DeleteItem(itemID, displayID uuid.UUID) (bool, error) {
 	sql, params, err := goqu.Delete("items").Where(goqu.Ex{"id": itemID, "display_id": displayID}).ToSQL()
 	if err != nil {
 		return false, fmt.Errorf("failed to create sql query from parameters: %w", err)
@@ -221,13 +222,13 @@ func (q postgresQuerier) DeleteItem(itemID, displayID int64) (bool, error) {
 	return true, nil
 }
 
-func (q postgresQuerier) IsItemOwner(userID string, itemID int64) (bool, error) {
+func (q postgresQuerier) IsItemOwner(userID, itemID uuid.UUID) (bool, error) {
 	sql, params, err := goqu.Select("user_id").From("items").Where(goqu.Ex{"id": itemID}).ToSQL()
 	if err != nil {
 		return false, fmt.Errorf("failed to create sql query from parameters: %w", err)
 	}
 
-	var uid string
+	var uid uuid.UUID
 	err = q.DB.QueryRow(sql, params...).Scan(&uid)
 	if err != nil {
 		return false, fmt.Errorf("failed to execute database query: %w", err)
@@ -240,13 +241,13 @@ func (q postgresQuerier) IsItemOwner(userID string, itemID int64) (bool, error) 
 	return true, nil
 }
 
-func (q postgresQuerier) IsDisplayOwner(userID string, displayID int64) (bool, error) {
+func (q postgresQuerier) IsDisplayOwner(userID, displayID uuid.UUID) (bool, error) {
 	sql, params, err := goqu.Select("user_id").From("displays").Where(goqu.Ex{"id": displayID}).ToSQL()
 	if err != nil {
 		return false, fmt.Errorf("failed to create sql query from parameters: %w", err)
 	}
 
-	var uid string
+	var uid uuid.UUID
 	err = q.DB.QueryRow(sql, params...).Scan(&uid)
 	if err != nil {
 		return false, fmt.Errorf("failed to execute database query: %w", err)
