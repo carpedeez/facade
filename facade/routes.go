@@ -68,8 +68,8 @@ func (f facade) CreateDisplay(w http.ResponseWriter, r *http.Request) *Response 
 
 // Get display
 // (GET /d/{displayID})
-func (f facade) GetDisplay(w http.ResponseWriter, r *http.Request, displayID string) *Response {
-	dID, err := uuid.Parse(displayID)
+func (f facade) GetDisplay(w http.ResponseWriter, r *http.Request, displayID DisplayID) *Response {
+	dID, err := uuid.Parse(string(displayID))
 	if err != nil {
 		return ErrorResponse("Not Found", http.StatusNotFound)
 	}
@@ -111,11 +111,11 @@ func (f facade) GetDisplay(w http.ResponseWriter, r *http.Request, displayID str
 
 // Update display
 // (PATCH /d/{displayID})
-func (f facade) UpdateDisplay(w http.ResponseWriter, r *http.Request, displayID string) *Response {
+func (f facade) UpdateDisplay(w http.ResponseWriter, r *http.Request, displayID DisplayID) *Response {
 	s := getSession(r.Context())
 	uID, _ := uuid.Parse(s.Identity.Id) // Prayge Kratos give us a real UUID
 
-	dID, err := uuid.Parse(displayID)
+	dID, err := uuid.Parse(string(displayID))
 	if err != nil {
 		return ErrorResponse("Not Found", http.StatusNotFound)
 	}
@@ -179,11 +179,11 @@ func (f facade) UpdateDisplay(w http.ResponseWriter, r *http.Request, displayID 
 
 // Delete display
 // (DELETE /d/{displayID})
-func (f facade) DeleteDisplay(w http.ResponseWriter, r *http.Request, displayID string) *Response {
+func (f facade) DeleteDisplay(w http.ResponseWriter, r *http.Request, displayID DisplayID) *Response {
 	s := getSession(r.Context())
 	uID, _ := uuid.Parse(s.Identity.Id) // Prayge Kratos give us a real UUID
 
-	dID, err := uuid.Parse(displayID)
+	dID, err := uuid.Parse(string(displayID))
 	if err != nil {
 		return ErrorResponse("Not Found", http.StatusNotFound)
 	}
@@ -216,11 +216,11 @@ func (f facade) DeleteDisplay(w http.ResponseWriter, r *http.Request, displayID 
 
 // Create Item
 // (POST /d/{displayID}/i)
-func (f facade) CreateItem(w http.ResponseWriter, r *http.Request, displayID string) *Response {
+func (f facade) CreateItem(w http.ResponseWriter, r *http.Request, displayID DisplayID) *Response {
 	s := getSession(r.Context())
 	uID, _ := uuid.Parse(s.Identity.Id) // Prayge Kratos give us a real UUID
 
-	dID, err := uuid.Parse(displayID)
+	dID, err := uuid.Parse(string(displayID))
 	if err != nil {
 		return ErrorResponse("Not Found", http.StatusNotFound)
 	}
@@ -268,12 +268,12 @@ func (f facade) CreateItem(w http.ResponseWriter, r *http.Request, displayID str
 
 // Get item
 // (GET /d/{displayID}/i/{itemID})
-func (f facade) GetItem(w http.ResponseWriter, r *http.Request, displayID string, itemID string) *Response {
-	dID, err := uuid.Parse(displayID)
+func (f facade) GetItem(w http.ResponseWriter, r *http.Request, displayID DisplayID, itemID ItemID) *Response {
+	dID, err := uuid.Parse(string(displayID))
 	if err != nil {
 		return ErrorResponse("Not Found", http.StatusNotFound)
 	}
-	iID, err := uuid.Parse(itemID)
+	iID, err := uuid.Parse(string(itemID))
 	if err != nil {
 		return ErrorResponse("Not Found", http.StatusNotFound)
 	}
@@ -299,15 +299,15 @@ func (f facade) GetItem(w http.ResponseWriter, r *http.Request, displayID string
 
 // Update item
 // (PATCH /d/{displayID}/i/{itemID})
-func (f facade) UpdateItem(w http.ResponseWriter, r *http.Request, displayID string, itemID string) *Response {
+func (f facade) UpdateItem(w http.ResponseWriter, r *http.Request, displayID DisplayID, itemID ItemID) *Response {
 	s := getSession(r.Context())
 	uID, _ := uuid.Parse(s.Identity.Id) // Prayge Kratos give us a real UUID
 
-	dID, err := uuid.Parse(displayID)
+	dID, err := uuid.Parse(string(displayID))
 	if err != nil {
 		return ErrorResponse("Not Found", http.StatusNotFound)
 	}
-	iID, err := uuid.Parse(itemID)
+	iID, err := uuid.Parse(string(itemID))
 	if err != nil {
 		return ErrorResponse("Not Found", http.StatusNotFound)
 	}
@@ -354,15 +354,15 @@ func (f facade) UpdateItem(w http.ResponseWriter, r *http.Request, displayID str
 
 // Delete item
 // (DELETE /d/{displayID}/i/{itemID})
-func (f facade) DeleteItem(w http.ResponseWriter, r *http.Request, displayID string, itemID string) *Response {
+func (f facade) DeleteItem(w http.ResponseWriter, r *http.Request, displayID DisplayID, itemID ItemID) *Response {
 	s := getSession(r.Context())
 	uID, _ := uuid.Parse(s.Identity.Id) // Prayge Kratos give us a real UUID
 
-	dID, err := uuid.Parse(displayID)
+	dID, err := uuid.Parse(string(displayID))
 	if err != nil {
 		return ErrorResponse("Not Found", http.StatusNotFound)
 	}
-	iID, err := uuid.Parse(itemID)
+	iID, err := uuid.Parse(string(itemID))
 	if err != nil {
 		return ErrorResponse("Not Found", http.StatusNotFound)
 	}

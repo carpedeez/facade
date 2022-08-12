@@ -120,6 +120,15 @@ type Upload struct {
 	File      string `json:"file"`
 }
 
+// DisplayID defines model for displayID.
+type DisplayID string
+
+// ItemID defines model for itemID.
+type ItemID string
+
+// BadRequest defines model for BadRequest.
+type BadRequest Error
+
 // CreateDisplayJSONBody defines parameters for CreateDisplay.
 type CreateDisplayJSONBody PostDisplay
 
@@ -348,25 +357,25 @@ type ServerInterface interface {
 	CreateDisplay(w http.ResponseWriter, r *http.Request) *Response
 	// Delete display
 	// (DELETE /d/{displayID})
-	DeleteDisplay(w http.ResponseWriter, r *http.Request, displayID string) *Response
+	DeleteDisplay(w http.ResponseWriter, r *http.Request, displayID DisplayID) *Response
 	// Get display
 	// (GET /d/{displayID})
-	GetDisplay(w http.ResponseWriter, r *http.Request, displayID string) *Response
+	GetDisplay(w http.ResponseWriter, r *http.Request, displayID DisplayID) *Response
 	// Update display
 	// (PATCH /d/{displayID})
-	UpdateDisplay(w http.ResponseWriter, r *http.Request, displayID string) *Response
+	UpdateDisplay(w http.ResponseWriter, r *http.Request, displayID DisplayID) *Response
 	// Create Item
 	// (POST /d/{displayID}/i)
-	CreateItem(w http.ResponseWriter, r *http.Request, displayID string) *Response
+	CreateItem(w http.ResponseWriter, r *http.Request, displayID DisplayID) *Response
 	// Delete item
 	// (DELETE /d/{displayID}/i/{itemID})
-	DeleteItem(w http.ResponseWriter, r *http.Request, displayID string, itemID string) *Response
+	DeleteItem(w http.ResponseWriter, r *http.Request, displayID DisplayID, itemID ItemID) *Response
 	// Get item
 	// (GET /d/{displayID}/i/{itemID})
-	GetItem(w http.ResponseWriter, r *http.Request, displayID string, itemID string) *Response
+	GetItem(w http.ResponseWriter, r *http.Request, displayID DisplayID, itemID ItemID) *Response
 	// Update item
 	// (PATCH /d/{displayID}/i/{itemID})
-	UpdateItem(w http.ResponseWriter, r *http.Request, displayID string, itemID string) *Response
+	UpdateItem(w http.ResponseWriter, r *http.Request, displayID DisplayID, itemID ItemID) *Response
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -441,7 +450,7 @@ func (siw *ServerInterfaceWrapper) DeleteDisplay(w http.ResponseWriter, r *http.
 	ctx := r.Context()
 
 	// ------------- Path parameter "displayID" -------------
-	var displayID string
+	var displayID DisplayID
 
 	if err := runtime.BindStyledParameter("simple", false, "displayID", chi.URLParam(r, "displayID"), &displayID); err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "displayID"})
@@ -470,7 +479,7 @@ func (siw *ServerInterfaceWrapper) GetDisplay(w http.ResponseWriter, r *http.Req
 	ctx := r.Context()
 
 	// ------------- Path parameter "displayID" -------------
-	var displayID string
+	var displayID DisplayID
 
 	if err := runtime.BindStyledParameter("simple", false, "displayID", chi.URLParam(r, "displayID"), &displayID); err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "displayID"})
@@ -496,7 +505,7 @@ func (siw *ServerInterfaceWrapper) UpdateDisplay(w http.ResponseWriter, r *http.
 	ctx := r.Context()
 
 	// ------------- Path parameter "displayID" -------------
-	var displayID string
+	var displayID DisplayID
 
 	if err := runtime.BindStyledParameter("simple", false, "displayID", chi.URLParam(r, "displayID"), &displayID); err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "displayID"})
@@ -525,7 +534,7 @@ func (siw *ServerInterfaceWrapper) CreateItem(w http.ResponseWriter, r *http.Req
 	ctx := r.Context()
 
 	// ------------- Path parameter "displayID" -------------
-	var displayID string
+	var displayID DisplayID
 
 	if err := runtime.BindStyledParameter("simple", false, "displayID", chi.URLParam(r, "displayID"), &displayID); err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "displayID"})
@@ -554,7 +563,7 @@ func (siw *ServerInterfaceWrapper) DeleteItem(w http.ResponseWriter, r *http.Req
 	ctx := r.Context()
 
 	// ------------- Path parameter "displayID" -------------
-	var displayID string
+	var displayID DisplayID
 
 	if err := runtime.BindStyledParameter("simple", false, "displayID", chi.URLParam(r, "displayID"), &displayID); err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "displayID"})
@@ -562,7 +571,7 @@ func (siw *ServerInterfaceWrapper) DeleteItem(w http.ResponseWriter, r *http.Req
 	}
 
 	// ------------- Path parameter "itemID" -------------
-	var itemID string
+	var itemID ItemID
 
 	if err := runtime.BindStyledParameter("simple", false, "itemID", chi.URLParam(r, "itemID"), &itemID); err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "itemID"})
@@ -591,7 +600,7 @@ func (siw *ServerInterfaceWrapper) GetItem(w http.ResponseWriter, r *http.Reques
 	ctx := r.Context()
 
 	// ------------- Path parameter "displayID" -------------
-	var displayID string
+	var displayID DisplayID
 
 	if err := runtime.BindStyledParameter("simple", false, "displayID", chi.URLParam(r, "displayID"), &displayID); err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "displayID"})
@@ -599,7 +608,7 @@ func (siw *ServerInterfaceWrapper) GetItem(w http.ResponseWriter, r *http.Reques
 	}
 
 	// ------------- Path parameter "itemID" -------------
-	var itemID string
+	var itemID ItemID
 
 	if err := runtime.BindStyledParameter("simple", false, "itemID", chi.URLParam(r, "itemID"), &itemID); err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "itemID"})
@@ -625,7 +634,7 @@ func (siw *ServerInterfaceWrapper) UpdateItem(w http.ResponseWriter, r *http.Req
 	ctx := r.Context()
 
 	// ------------- Path parameter "displayID" -------------
-	var displayID string
+	var displayID DisplayID
 
 	if err := runtime.BindStyledParameter("simple", false, "displayID", chi.URLParam(r, "displayID"), &displayID); err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "displayID"})
@@ -633,7 +642,7 @@ func (siw *ServerInterfaceWrapper) UpdateItem(w http.ResponseWriter, r *http.Req
 	}
 
 	// ------------- Path parameter "itemID" -------------
-	var itemID string
+	var itemID ItemID
 
 	if err := runtime.BindStyledParameter("simple", false, "itemID", chi.URLParam(r, "itemID"), &itemID); err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{err, "itemID"})
@@ -830,27 +839,27 @@ func WithErrorHandler(handler func(w http.ResponseWriter, r *http.Request, err e
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/9xYTXPbNhD9Kxy0R0ZUPk46tUmajKdu63HrU8ajWRErESlJIMBSscaj/94BQEqkBOrD",
-	"smU3J8skuHj73sMugHuWykLJEksybHTPTJphAe7nb1pLbX8A54KELCG/0lKhJoGGjaaQG4yZaj2ywTja",
-	"v1OpCyA2YqKkt29YzGih0P+LM9RsGbMCjYGZG12/NKRFOWPLZcw0fquERs5GX3zM9fjbVTA5+Yop2Vif",
-	"kT4Ko3JYHImXo0m1UHZ0AEjMBO9kU1WCr5NpDSMsXLzVj581TtmI/ZSs6U1qbpPPSBeEhf2wjgRaw8L+",
-	"rzJJ8ub6MgiGBOUYfFMZ1BcfD4C6Qa0bUn/cxI87pLQgNWn2COBSOpJ9r9lByGOGd4S6hPxSlP+eItZO",
-	"jo1MBeRX0lDvNCeR3Ulia7oO2ytd1jSFqL8CSrOncX+f4ZZ9MB7ggb2qniZXEKo0dHbC2k4ILbTbHqCP",
-	"T+kGmM7oEIq/0Zg64e48kJKYt9OdSJkjlPYjqCjDkkQKhHxsF0mArtYgIctxgZRJ3q2jm+2lUDnuiOhD",
-	"7E+6Hhd3I4ay36zQLcxSj8GYSkOZ4jjHOeZBTHinhEbTB1nwnsd2FloESNC4i9SeeBpTOUe9GAPnGo3B",
-	"nTw/aIpK8V1fzSGvwu1rLmC/ZK58+hj+i7gNszP7ITr6ZjzuSaV+W+mwpIaAsP/NOM2gnPUzQRoEBWjH",
-	"AkR4wu84MYIOKC3NwLgOFqJin06oxVTAJMcn9IrlqTKPbCMHHHm4Ij3AZE28xm816FOMF5pvbcWO8Rqb",
-	"BUy1slCPWsHlfhxsYUzVJ0IoiboZdMpdoA3sK6C9TaGNqFUdQ9BvVC6BH31yqffpQWtNRd4910xECXqx",
-	"d8+3jlrH2MZrPxHlVG7tL9g/mTCRMBFlGKlqkos0+vXqIppKHX2CFDgOVpv2EfNPvCF8u2bDwXDw2qKX",
-	"CktQgo3Y28FwYI9jCihzaSe/FC6xGbrELSOO9wvORuwPdE4ySpZ1DXgzHHqySqqpAqXyWqvkq/HbBG/i",
-	"fcegZl/hGOhm/tfvjklTFYVleWTPF9F6fMwSMAbrEipNALr3wCeR+xS+VWjoveSLDfRFlZNQoCmxyr7i",
-	"QHB4ArXPll3RSVe4PJG2Lhs315dO9Drnbc8F+YvZu0cUy18GBKZ6Dzy69vxuaObpiZztlzG7ezWTrwrB",
-	"eY7fQVtevjBTS3prJeX9an5whavZs+8S9OEZtk8FB0n6+tGmbl1fBBj2yfMXoKhHEvEG6yGiJver4+vS",
-	"W9tut7cl/uieryVWoKFAQm1j3jNhkdmqxWJWgq1ZrWPxplZxi4J9Z/TbLV3fba/AP2X0oea8y4hHvWJk",
-	"PyHBOtvS/zkTH57J0MHq3jKVAkqzUEnn8GwOeYJ60763eYIecpo+L6B7cDhiZW3VmkTsayfuZuX/b6Pm",
-	"juj8PWs97QtvWM1t+3HdKhHJvT3zHtS4zmymOBjbo33+dig8GQ/thT8ul8NzLL9gexX1EtjZW38o4p+o",
-	"Yx9ea88m9kvp1Qcte/cl6nnjru4cU3eLEYESLGbu9pVlRMqMkgSUGPjXoNSA4zyZD9nydvlfAAAA///d",
-	"q0f2wh4AAA==",
+	"H4sIAAAAAAAC/8xZS2/jNhf9KwK/b6lYnsdKq3YmnUHQtA3SZhUExrV4bXMqkRyS8sQI9N8LkpIlxZQf",
+	"8aPdWSJ5H+ccXfLSLyQThRQcudEkfSESFBRoULknyrTMYXVzbR8YJymRYBYkJhwKJGlnPCYKv5dMISWp",
+	"USXGRGcLLMAunAlVgCEpKUtGSUzMStrF2ijG56SqYsIMFoNO6sFjPFR2sZaCa3R5fQJ6j99L1MY+ZYIb",
+	"5O4nSJmzDAwTPPmmBbfvWjf/VzgjKflf0mKW+FGd/KKUUN4VRZ0pJq0RklpfUePMjtYLrD2/xrqllNnp",
+	"kN8pIVEZZuOcQa4xJrLzygZLsZcy4+bD+zZnxg3OUZEqJgVqDXM3exPyFsxHb7Od/7Q2JqbfMDPW1lc0",
+	"157sA+PtgbERSEwY3YNArxBnb/1jGxlf0dwYLOzC2hIoBSv7LBfCiIf722AwhpkcgyOlRuUVulvNXWjd",
+	"lHpxY7+vkE5ITZoDBLiUDkS/+wHvBBmfDSoO+S3jfx9D1laMtcgY5HdCm0E3R4HdS2LDXQ/tNS8tTCHo",
+	"78Bki/Oof0hw1VAYb9DATlaPoysYqtDm4oB1lRD60J4GAj09pK+C6c0ORfEnal0n3PcDmWHLbrpTIXIE",
+	"bhdBaRbIjd2tkE7ABOHqTGKCTwo0C0H7dfT19lLIHLdY9CZ2J13Pi/sWQ9m/rtCdmIWagNalAp7hJMcl",
+	"5sGY8FkyhXooZEYHXlsvZhUAQeE2UAfsKczEEtVqApQq1PVRYwjnN7koJd22agl5Gd6+lgx2U+bKp7fh",
+	"V8TdMHve9+HRb8aTgVTq0VKFKdUGDA6PTLIF8PkwEkYBMwHYsQAWdvgDp5qZPUpLMzGujYWg2MUTKjZj",
+	"MM3xjFqxOJX6xDJygSMNV6Q3iKyx1+itDvoY4YX8tVLsCa+RWUBUawkNsBX83A8Lm2ldDpEQSqLeDHrl",
+	"LrAN7Cqgg5tCN6JOdQyF/iBzAfTgzqU+pwelNWN5v6+ZMg5qtfPM11qtbWzG6zpMPhMb5wvy14LpiOnI",
+	"LDCS5TRnWfTz3U00Eyr6AhlQHK0P7Snxb7wg/HZNxqPx6J2NXkjkIBlJyYfReGTbMdvDurSTnwqX2Bxd",
+	"4hYRh/sNJSn5Dcmr1vT9eHyynrQ5VwS60j9+9c1oWRQW5dT2F1E7PyYJaI11CRU6ELrXwBeWY92aozaf",
+	"BF29ir4oc8MkKJNYZq8oGNg/gVpnVZ902/1XR8LWR+Ph/taRXuccvEDYxC8mH73XUArr6JLOZUMfcp9d",
+	"5FRbxeT5ai6uCkZpjj9A2bQeia4ZebKM0GEyPru60xy5t/HxdjV1D/V7MfLuZK47tw8BLnzy9HhCvKGI",
+	"Nq724SR5WTePlReWPexuMnTt3rcMdS/aHsMRt1OStkGtnjZw/rgp6N9F9LkGvp+iD2Od4u4Mg2Wrw8dJ",
+	"MxlfSDHB6tehXdpWO1TyKJyOwzN8od2LijMUzeMAP75cUjhAuhtfZ8J21U93E/AfpLW5pLh81W3dnrfk",
+	"Nre1h9XbhCUv/t+BPUrvseTGOyfXf1ScpkIzH+5by/O/me34EgoMlnBWy2hr/b4wNGcq8/sXhIvRcaIC",
+	"v5fy3UpUy4a+fjQz16pFtiOLibtiIgtjpE6TBCQb+WGQckRxmSzHpHqq/gkAAP//zi526QkdAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

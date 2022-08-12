@@ -1,12 +1,11 @@
 openapi: 3.0.2
 info:
   title: Facade
-  description: This is the public API for Facade.
+  description: This is the documentation for Facade's API.
   version: 0.0.1
 servers:
   - url: https://api.facadeapp.dev/v0
-    description: facade api
-  # facadeapp.dev will serve static webpages, account.facadeapp.dev will handle authentication
+    description: facade public api
 paths:
   /@me:
     get:
@@ -20,7 +19,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Session'
   /assets:
-    x-go-middlewares: 
+    x-go-middlewares:
       - session
     post:
       summary: Upload file
@@ -40,13 +39,9 @@ paths:
                 type: string
                 description: URL for assets
         '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
   /d:
-    x-go-middlewares: 
+    x-go-middlewares:
       - session
     post:
       requestBody:
@@ -65,41 +60,27 @@ paths:
               schema:
                 $ref: '#/components/schemas/GetDisplay'
         '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'  
+          $ref: '#/components/responses/BadRequest'
   /d/{displayID}:
     get:
       summary: Get display
       operationId: getDisplay
       parameters:
-        - name: displayID
-          required: true
-          in: path
-          schema:
-            type: string
-            format: uuid
+        - $ref: '#/components/parameters/displayID'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetDisplay'     
+                $ref: '#/components/schemas/GetDisplay'
     patch:
-      x-go-middlewares: 
+      x-go-middlewares:
         - session
       summary: Update display
       operationId: updateDisplay
       parameters:
-        - name: displayID
-          required: true
-          in: path
-          schema:
-            type: string
-            format: uuid
+        - $ref: '#/components/parameters/displayID'
       requestBody:
         required: true
         content:
@@ -112,28 +93,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetDisplay'  
+                $ref: '#/components/schemas/GetDisplay'
         '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'      
+          $ref: '#/components/responses/BadRequest'
     delete:
-      x-go-middlewares: 
+      x-go-middlewares:
         - session
       summary: Delete display
       operationId: deleteDisplay
       parameters:
-        - name: displayID
-          required: true
-          in: path
-          schema:
-            type: string
-            format: uuid
+        - $ref: '#/components/parameters/displayID'
       responses:
         '204':
-          description: No Content      
+          description: No Content
   /d/{displayID}/i:
     x-go-middlewares:
       - session
@@ -141,12 +113,7 @@ paths:
       summary: Create Item
       operationId: createItem
       parameters:
-        - name: displayID
-          required: true
-          in: path
-          schema:
-            type: string
-            format: uuid
+        - $ref: '#/components/parameters/displayID'
       requestBody:
         required: true
         content:
@@ -159,55 +126,31 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetItem'  
+                $ref: '#/components/schemas/GetItem'
         '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'     
+          $ref: '#/components/responses/BadRequest'
   /d/{displayID}/i/{itemID}:
     get:
       summary: Get item
       operationId: getItem
       parameters:
-        - name: displayID
-          required: true
-          in: path
-          schema:
-            type: string
-            format: uuid
-        - name: itemID
-          required: true
-          in: path
-          schema:
-            type: string
-            format: uuid
+        - $ref: '#/components/parameters/displayID'
+        - $ref: '#/components/parameters/itemID'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetItem'       
+                $ref: '#/components/schemas/GetItem'
     patch:
       x-go-middlewares:
         - session
       summary: Update item
       operationId: updateItem
       parameters:
-        - name: displayID
-          required: true
-          in: path
-          schema:
-            type: string
-            format: uuid
-        - name: itemID
-          required: true
-          in: path
-          schema:
-            type: string
-            format: uuid
+        - $ref: '#/components/parameters/displayID'
+        - $ref: '#/components/parameters/itemID'
       requestBody:
         required: true
         content:
@@ -222,33 +165,34 @@ paths:
               schema:
                 $ref: '#/components/schemas/GetItem'
         '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'       
+          $ref: '#/components/responses/BadRequest'
     delete:
       x-go-middlewares:
         - session
       summary: Delete item
       operationId: deleteItem
       parameters:
-        - name: displayID
-          required: true
-          in: path
-          schema:
-            type: string
-            format: uuid
-        - name: itemID
-          required: true
-          in: path
-          schema:
-            type: string
-            format: uuid
+        - $ref: '#/components/parameters/displayID'
+        - $ref: '#/components/parameters/itemID'
       responses:
         '204':
-          description: No Content       
+          description: No Content
 components:
+  parameters:
+    displayID:
+      name: displayID
+      required: true
+      in: path
+      schema:
+        type: string
+        format: uuid
+    itemID:
+      name: itemID
+      required: true
+      in: path
+      schema:
+        type: string
+        format: uuid
   schemas:
     Session:
       type: object
@@ -486,3 +430,10 @@ components:
           format: int32
         message:
           type: string
+  responses:
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
