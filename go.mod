@@ -18,6 +18,7 @@ require (
 require (
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
+	github.com/go-chi/cors v1.2.1 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/swag v0.21.1 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect

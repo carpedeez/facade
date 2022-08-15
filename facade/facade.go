@@ -11,6 +11,7 @@ import (
 	"github.com/carpedeez/facade/database"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 	ory "github.com/ory/client-go"
 	"github.com/rs/zerolog"
 )
@@ -31,7 +32,12 @@ func Run(wg *sync.WaitGroup, ctx context.Context, log zerolog.Logger, c config.F
 	f := facade{log, q, o}
 
 	r := chi.NewRouter()
-	r.Use(middleware.RealIP, middleware.RequestID, middleware.Recoverer, newRequestLogger(log))
+	r.Use(middleware.RealIP, middleware.RequestID, middleware.Recoverer, cors.Handler(cors.Options{
+		// AllowedOrigins:   []string{"https://foo.com"}, // Use this to allow specific origin hosts
+		AllowedOrigins: []string{"https://*", "http://*"},
+		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+	}), newRequestLogger(log))
 
 	r.Get("/v0/@me", f.FakeMe)
 	r.Get("/v0/redoc", func(w http.ResponseWriter, r *http.Request) {
