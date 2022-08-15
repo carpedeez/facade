@@ -30,7 +30,10 @@ func Run(wg *sync.WaitGroup, ctx context.Context, log zerolog.Logger, c config.F
 	f := facade{log, q, o}
 
 	r := chi.NewRouter()
-	r.Use(middleware.RealIP, middleware.RequestID, middleware.Recoverer, newRequestLogger(log))
+	r.Use(middleware.RealIP)
+	r.Use(middleware.RequestID)
+	r.Use(middleware.Recoverer)
+	r.Use(middleware.RequestLogger(&apiLogger{log}))
 
 	handler := Handler(f, WithRouter(r), WithMiddleware("session", f.sessionMiddleware))
 

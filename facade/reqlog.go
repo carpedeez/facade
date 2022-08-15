@@ -18,10 +18,7 @@ type apiLoggerEntry struct {
 	event *zerolog.Event
 }
 
-func newRequestLogger(logger zerolog.Logger) func(next http.Handler) http.Handler {
-	return middleware.RequestLogger(&apiLogger{logger})
-}
-
+// TODO: sanitize and log requests and/or responses
 func (l *apiLogger) NewLogEntry(r *http.Request) middleware.LogEntry {
 	entry := &apiLoggerEntry{event: l.Logger.Info()}
 
