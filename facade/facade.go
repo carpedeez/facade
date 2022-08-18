@@ -36,7 +36,7 @@ func Run(wg *sync.WaitGroup, ctx context.Context, log zerolog.Logger, c config.F
 		// AllowedOrigins:   []string{"https://foo.com"}, // Use this to allow specific origin hosts
 		AllowedOrigins: []string{"https://*", "http://*"},
 		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
-		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedMethods: []string{"GET", "POST", "PATCH", "DELETE", "OPTIONS"},
 	}), newRequestLogger(log))
 
 	r.Get("/v0/@me", f.FakeMe)
