@@ -33,7 +33,7 @@ type postgresQuerier struct {
 func (q postgresQuerier) CreateDisplay(userID uuid.UUID, title, description string) (Display, error) {
 	d := Display{}
 
-	sql, params, err := goqu.Insert("displays").Cols("id", "user_id", "title", "descr", "photo_url").Vals(goqu.Vals{uuid.New(), userID, title, description, ""}).Returning("*").ToSQL()
+	sql, params, err := goqu.Insert("displays").Cols("user_id", "title", "descr", "photo_url").Vals(goqu.Vals{userID, title, description, ""}).Returning("*").ToSQL()
 	if err != nil {
 		return d, fmt.Errorf("failed to create sql query from parameters: %w", err)
 	}
@@ -112,7 +112,7 @@ func (q postgresQuerier) DeleteDisplay(displayID uuid.UUID) (bool, error) {
 func (q postgresQuerier) CreateItem(userID, displayID uuid.UUID, externalLink string) (Item, error) {
 	i := Item{}
 
-	sql, params, err := goqu.Insert("items").Cols("id", "user_id", "display_id", "external_link", "social_post_link", "photo_url").Vals(goqu.Vals{uuid.New(), userID, displayID, externalLink, "", ""}).Returning("*").ToSQL()
+	sql, params, err := goqu.Insert("items").Cols("user_id", "display_id", "external_link", "social_post_link", "photo_url").Vals(goqu.Vals{userID, displayID, externalLink, "", ""}).Returning("*").ToSQL()
 	if err != nil {
 		return i, fmt.Errorf("failed to create sql query from parameters: %w", err)
 	}

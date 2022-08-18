@@ -10,6 +10,7 @@ import (
 	"github.com/carpedeez/facade/database"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 	ory "github.com/ory/client-go"
 	"github.com/rs/zerolog"
 )
@@ -34,11 +35,21 @@ func Run(wg *sync.WaitGroup, ctx context.Context, log zerolog.Logger, c config.F
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.RequestLogger(&apiLogger{log}))
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:     []string{"https://*", "http://*"},
+		AllowedMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete, http.MethodOptions},
+		AllowedHeaders:     []string{"Origin", "Accept", "Content-Type"},
+		ExposedHeaders:     []string{},
+		AllowCredentials:   false,
+		MaxAge:             300,
+		OptionsPassthrough: false,
+		Debug:              false,
+	}))
 
-	handler := Handler(f, WithRouter(r), WithMiddleware("session", f.sessionMiddleware))
+	handler := Handler(f, WithRouter(r), WithMiddleware("session", f.sessionMiddleware), WithServerBaseURL("/v0"))
 
 	go func() {
-		log.Info().Msgf("listening on http://localhost:%s/", c.Port)
+		log.Info().Msg("listening on :" + c.Port)
 		err := http.ListenAndServe(":"+c.Port, handler)
 		if err != nil {
 			log.Panic().Msg("failed to start listening and serving api")
