@@ -61,7 +61,7 @@ func Run(wg *sync.WaitGroup, ctx context.Context, log zerolog.Logger, c config.F
 			</style>
 		  </head>
 		  <body>
-			<redoc spec-url='http://localhost:4000/v0/spec.json'></redoc>
+			<redoc spec-url='https://api.facadeapp.dev/v0/spec.json'></redoc>
 			<script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"> </script>
 		  </body>
 		</html>`))
