@@ -32,7 +32,7 @@ type postgresQuerier struct {
 
 func (q postgresQuerier) CreateDisplay(userID uuid.UUID, title, description string) (Display, error) {
 	d := Display{}
-
+	//need to check sql injections
 	sql, params, err := goqu.Insert("displays").Cols("user_id", "title", "descr", "photo_url").Vals(goqu.Vals{userID, title, description, ""}).Returning("*").ToSQL()
 	if err != nil {
 		return d, fmt.Errorf("failed to create sql query from parameters: %w", err)

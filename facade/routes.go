@@ -13,13 +13,8 @@ import (
 // Get Session
 // (GET /@me)
 func (f facade) Me(w http.ResponseWriter, r *http.Request) *Response {
-	cookies := r.Header.Get("Cookie")
-	s, _, err := f.ory.V0alpha2Api.ToSession(r.Context()).Cookie(cookies).Execute()
-	if (err != nil || s == nil) || !*s.Active {
-		return ErrorResponse("Unauthorized", http.StatusUnauthorized)
-	}
 	return &Response{
-		body: s, // fix open api schema when identity schema is decided
+		body: r.Context().Value("req.session"), // fix open api schema when identity schema is decided
 		Code: 200,
 	}
 }

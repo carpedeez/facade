@@ -36,14 +36,14 @@ func Run(wg *sync.WaitGroup, ctx context.Context, log zerolog.Logger, c config.F
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.RequestLogger(&apiLogger{log}))
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:     []string{"https://*", "http://*"},
+		AllowedOrigins:     []string{"http://localhost:5173"},
 		AllowedMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete, http.MethodOptions},
 		AllowedHeaders:     []string{"Origin", "Accept", "Content-Type"},
-		ExposedHeaders:     []string{},
-		AllowCredentials:   false,
+		ExposedHeaders:     []string{"Origin", "Content-Type"},
+		AllowCredentials:   true,
 		MaxAge:             300,
 		OptionsPassthrough: false,
-		Debug:              false,
+		Debug:              true,
 	}))
 
 	handler := Handler(f, WithRouter(r), WithMiddleware("session", f.sessionMiddleware), WithServerBaseURL("/v0"))

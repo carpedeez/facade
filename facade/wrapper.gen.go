@@ -400,6 +400,9 @@ func (siw *ServerInterfaceWrapper) Me(w http.ResponseWriter, r *http.Request) {
 		}
 	})
 
+	// Operation specific middleware
+	handler = siw.Middlewares["session"](handler).ServeHTTP
+	
 	handler(w, r.WithContext(ctx))
 }
 

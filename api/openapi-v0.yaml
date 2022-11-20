@@ -8,6 +8,8 @@ servers:
     description: facade public api
 paths:
   /@me:
+    x-go-middlewares:
+      - session
     get:
       summary: Get Session
       operationId: me
