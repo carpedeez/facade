@@ -43,7 +43,7 @@ func Run(wg *sync.WaitGroup, ctx context.Context, log zerolog.Logger, c config.F
 		AllowCredentials:   true,
 		MaxAge:             300,
 		OptionsPassthrough: false,
-		Debug:              true,
+		Debug:              false,
 	}))
 
 	handler := Handler(f, WithRouter(r), WithMiddleware("session", f.sessionMiddleware), WithServerBaseURL("/v0"))

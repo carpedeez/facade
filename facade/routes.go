@@ -14,7 +14,7 @@ import (
 // (GET /@me)
 func (f facade) Me(w http.ResponseWriter, r *http.Request) *Response {
 	return &Response{
-		body: r.Context().Value("req.session"), // fix open api schema when identity schema is decided
+		body: getSession(r.Context()), // fix open api schema when identity schema is decided
 		Code: 200,
 	}
 }

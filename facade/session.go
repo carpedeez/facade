@@ -33,10 +33,8 @@ func (f facade) sessionMiddleware(next http.Handler) http.Handler {
 		cookies := r.Header.Get("Cookie")
 
 		session, _, err := f.ory.V0alpha2Api.ToSession(r.Context()).Cookie(cookies).Execute()
-		f.log.Debug().Err(err).Msgf("%+v", session)
-		f.log.Debug().Msgf("%+v", cookies)
 		if (err != nil && session == nil) || (err == nil && !*session.Active) {
-			http.Error(w, "Not login", http.StatusUnauthorized)
+			http.Error(w, "Not logged in", http.StatusUnauthorized)
 			return
 		}
 
